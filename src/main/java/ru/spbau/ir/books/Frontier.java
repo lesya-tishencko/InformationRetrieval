@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Queue;
 
 public class Frontier {
-    Queue<URL> queue;
+    private Queue<Crawler.WebsiteAndUrl> queue;
 
-    Frontier(URL firstUrl) {
+    Frontier(List<URL> firstURLs) {
         queue = new LinkedList<>();
-        queue.add(firstUrl);
+        for (URL firstURL : firstURLs) {
+            Website website = new Website();
+            queue.add(new Crawler.WebsiteAndUrl(website, firstURL));
+        }
     }
 
     public boolean done() {
@@ -18,16 +21,12 @@ public class Frontier {
     }
 
     public Crawler.WebsiteAndUrl nextSite() {
-        URL current = queue.remove();
-        /* обработка url */
-        return null;
+        return queue.remove();
     }
 
-    public void addUrl(List<URL> url) {
-
-    }
-
-    public void releaseSite(Website website) {
-
+    public void addUrl(List<URL> urls, Website website) {
+        for (URL url : urls) {
+            queue.add(new Crawler.WebsiteAndUrl(website, url));
+        }
     }
 }

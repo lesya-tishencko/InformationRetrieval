@@ -1,14 +1,13 @@
 package ru.spbau.ir.books;
 
-import java.nio.file.Path;
-
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Crawler {
 
-    private Map<URL, Document> processedUrls = new HashMap<URL, Document>();
+    private Map<URL, Path> processedUrls = new HashMap<>();
     private Path pathForStoring;
 
     public void crawlerThread(Frontier frontier) {
@@ -20,8 +19,8 @@ public class Crawler {
                 if (site.permitsCrawl(url)) {
                     Document document = site.getDocument(url);
                     document.store(pathForStoring);
-                    processedUrls.put(url, document);
-                    frontier.addUrl(document.parse());
+                    processedUrls.put(url, pathForStoring);
+                    frontier.addUrl(document.parse(), site);
                 }
             }
         }
