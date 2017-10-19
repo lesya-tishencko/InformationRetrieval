@@ -7,6 +7,7 @@ public class Website {
         return null;
     }
 
+    /* politness */
     public boolean permitsCrawl(URL url) {
         return false;
     }
