@@ -1,14 +1,13 @@
 package ru.spbau.ir.books;
 
-import javafx.scene.shape.Path;
-
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Crawler {
 
-    private Map<URL, Document> processedUrls = new HashMap<URL, Document>();
+    private Map<URL, Path> processedUrls = new HashMap<URL, Document>();
     private Path pathForStoring;
 
     public void crawlerThread(Frontier frontier) {
