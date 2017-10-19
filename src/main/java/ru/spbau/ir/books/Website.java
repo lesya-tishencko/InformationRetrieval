@@ -17,7 +17,7 @@ import org.jsoup.Jsoup;
 public class Website {
     private RobotsTxt robots;
     private final URL mainURL;
-    private Set<URL> unhandled;
+    private final Set<URL> unhandled;
     private final String userAgent = "AUcrawler Angelika&Lesya/1.0 (+l.tishencko@geoscan.aero)";
 
     public Website(URL siteUrl, Path unhandledURL) {

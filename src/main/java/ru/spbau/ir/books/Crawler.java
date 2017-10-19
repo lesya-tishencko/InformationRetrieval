@@ -7,11 +7,20 @@ import java.util.Map;
 
 public class Crawler {
 
-    private Map<URL, Path> processedUrls = new HashMap<>();
-    private Path pathForStoring;
-    private Path unhandledUrls;
+    private final Map<URL, Path> processedUrls = new HashMap<>();
+    private final Path pathForStoring;
+    private final Path unhandledUrls;
+    private final Path mainUrls;
+    private Frontier frontier;
 
-    public void crawlerThread(Frontier frontier) {
+    public Crawler(Path forStoring, Path unhandledUrls, Path mainUrls) {
+        pathForStoring = forStoring;
+        this.unhandledUrls = unhandledUrls;
+        this.mainUrls = mainUrls;
+        frontier = new Frontier(mainUrls, unhandledUrls);
+    }
+
+    public void crawlerThread() {
         while (!frontier.done()) {
             WebsiteAndUrl siteAndUrl = frontier.nextSite();
             Website site = siteAndUrl.site;
