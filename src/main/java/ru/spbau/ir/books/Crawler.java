@@ -1,6 +1,6 @@
 package ru.spbau.ir.books;
 
-import javafx.scene.shape.Path;
+import java.nio.file.Path;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class Crawler {
             URL url = siteAndUrl.url;
             if (!processedUrls.containsKey(url)) {
                 if (site.permitsCrawl(url)) {
-                    Document document = site.getDocument();
+                    Document document = site.getDocument(url);
                     document.store(pathForStoring);
                     processedUrls.put(url, document);
                     frontier.addUrl(document.parse());
