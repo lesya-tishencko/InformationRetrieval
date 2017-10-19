@@ -13,20 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Document {
-    private File htmlPage;
+    private org.jsoup.nodes.Document htmlPage;
 
-    Document(File htmlPage) {
+    Document(org.jsoup.nodes.Document htmlPage) {
         this.htmlPage = htmlPage;
     }
 
     public List<URL> parse() {
-        org.jsoup.nodes.Document doc = null;
-        try {
-            doc = Jsoup.parse(htmlPage, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Elements links = doc.select("a[href");
+        Elements links = htmlPage.select("a[href");
         List<String> urlsStrings = links.eachAttr("abs:href");
         List<URL> urls = new ArrayList<>();
         for (String urlString : urlsStrings) {

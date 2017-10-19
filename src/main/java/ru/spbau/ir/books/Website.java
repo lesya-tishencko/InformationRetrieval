@@ -1,8 +1,10 @@
 package ru.spbau.ir.books;
 
+import java.io.IOException;
 import java.net.URL;
 import java.io.InputStream;
 import com.panforge.robotstxt.RobotsTxt;
+import org.jsoup.Jsoup;
 
 public class Website {
     private RobotsTxt robots;
@@ -17,13 +19,21 @@ public class Website {
             System.out.println(e.getMessage());
         }
     }
-    /* politness */
+
     public boolean permitsCrawl(URL url) {
         return robots.query(userAgent, url.getPath());
     }
 
     public Document getDocument(URL url) {
-
-        return null;
+        org.jsoup.nodes.Document innerDocument = null;
+        try {
+            innerDocument = Jsoup.connect(url.getPath())
+                    .data("query", "Java")
+                    .userAgent(userAgent)
+                    .get();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return new Document(innerDocument);
     }
 }
