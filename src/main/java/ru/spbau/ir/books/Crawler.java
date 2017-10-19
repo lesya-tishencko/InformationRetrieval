@@ -2,6 +2,7 @@ package ru.spbau.ir.books;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,15 +10,15 @@ public class Crawler {
 
     private final Map<URL, Path> processedUrls = new HashMap<>();
     private final Path pathForStoring;
-    private final Path unhandledUrls;
-    private final Path mainUrls;
+    private final Path handledURLs;
+    private final Path mainURLs;
     private Frontier frontier;
 
-    public Crawler(Path forStoring, Path unhandledUrls, Path mainUrls) {
+    public Crawler(Path forStoring, Path handledURLs, Path mainUrls) {
         pathForStoring = forStoring;
-        this.unhandledUrls = unhandledUrls;
-        this.mainUrls = mainUrls;
-        frontier = new Frontier(mainUrls, unhandledUrls);
+        this.handledURLs = handledURLs;
+        this.mainURLs = mainUrls;
+        frontier = new Frontier(mainUrls, handledURLs);
     }
 
     public void crawlerThread() {
@@ -34,6 +35,15 @@ public class Crawler {
                 }
             }
         }
+    }
+
+    public static void main(String[] args) {
+        ClassLoader loader = ClassLoader.getSystemClassLoader();
+        Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
+        Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
+        Path pageStoragePath = Paths.get(loader.getResource("pageStorage").getPath());
+        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+        crawler.crawlerThread();
     }
 
     static class WebsiteAndUrl {

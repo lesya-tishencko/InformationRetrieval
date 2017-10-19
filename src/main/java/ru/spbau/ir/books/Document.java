@@ -1,7 +1,5 @@
 package ru.spbau.ir.books;
 
-
-import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import java.io.*;
