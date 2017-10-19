@@ -4,8 +4,7 @@ package ru.spbau.ir.books;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -32,8 +31,30 @@ public class Document {
         }
         return urls;
     }
+    String pattern = "page";
+    int counter = 1;
 
     public void store(Path path) {
-
+        File file = new File(path.toFile().getAbsolutePath() + "/" + pattern + counter + ".html");
+        boolean result = false;
+        if (!file.exists()) {
+            try {
+                result = file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!result) return;
+        }
+        DataOutputStream fout = null;
+        try {
+            fout = new DataOutputStream(new FileOutputStream(file));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            fout.writeChars(htmlPage.outerHtml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
