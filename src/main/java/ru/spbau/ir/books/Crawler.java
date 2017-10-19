@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Crawler {
 
-    private Map<URL, Path> processedUrls = new HashMap<URL, Document>();
+    private Map<URL, Path> processedUrls = new HashMap<>();
     private Path pathForStoring;
 
     public void crawlerThread(Frontier frontier) {
@@ -19,8 +19,8 @@ public class Crawler {
                 if (site.permitsCrawl(url)) {
                     Document document = site.getDocument();
                     document.store(pathForStoring);
-                    processedUrls.put(url, document);
-                    frontier.addUrl(document.parse());
+                    processedUrls.put(url, pathForStoring);
+                    frontier.addUrl(document.parse(), site);
                 }
             }
         }

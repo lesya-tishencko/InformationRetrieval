@@ -1,20 +1,18 @@
 package ru.spbau.ir.books;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 public class Frontier {
-    private HashMap<Website, URL> websites;
-    private Queue<URL> queue;
+    private Queue<Crawler.WebsiteAndUrl> queue;
 
     Frontier(List<URL> firstURLs) {
         queue = new LinkedList<>();
         for (URL firstURL : firstURLs) {
-            websites.put(new Website(), firstURL);
-            queue.add(firstURL);
+            Website website = new Website();
+            queue.add(new Crawler.WebsiteAndUrl(website, firstURL));
         }
     }
 
@@ -23,16 +21,12 @@ public class Frontier {
     }
 
     public Crawler.WebsiteAndUrl nextSite() {
-        URL current = queue.remove();
-
-        return null;
+        return queue.remove();
     }
 
-    public void addUrl(List<URL> url, Website website) {
-
-    }
-
-    public void releaseSite(Website website) {
-
+    public void addUrl(List<URL> urls, Website website) {
+        for (URL url : urls) {
+            queue.add(new Crawler.WebsiteAndUrl(website, url));
+        }
     }
 }
