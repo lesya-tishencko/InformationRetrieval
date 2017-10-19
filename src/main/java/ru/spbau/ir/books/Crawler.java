@@ -9,6 +9,7 @@ public class Crawler {
 
     private Map<URL, Path> processedUrls = new HashMap<>();
     private Path pathForStoring;
+    private Path unhandledUrls;
 
     public void crawlerThread(Frontier frontier) {
         while (!frontier.done()) {
