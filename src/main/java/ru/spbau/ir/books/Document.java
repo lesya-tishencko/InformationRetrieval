@@ -17,7 +17,7 @@ public class Document {
     }
 
     public List<URL> parse() {
-        Elements links = htmlPage.select("a[href");
+        Elements links = htmlPage.select("a[href]");
         List<String> urlsStrings = links.eachAttr("abs:href");
         List<URL> urls = new ArrayList<>();
         for (String urlString : urlsStrings) {

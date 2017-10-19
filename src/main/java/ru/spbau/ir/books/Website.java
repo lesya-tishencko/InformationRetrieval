@@ -22,8 +22,8 @@ public class Website {
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
         handled = processUnhandledUrls(unhandledURL);
-        try (InputStream robotsTxtStream = new URL(siteUrl.getPath() + "/robots.txt").openStream()) {
-            RobotsTxt robotsTxt = RobotsTxt.read(robotsTxtStream);
+        try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
+            robots = RobotsTxt.read(robotsTxtStream);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -33,7 +33,7 @@ public class Website {
         List<URL> urls = new ArrayList<>();
         try {
             Files.lines(unhandledURL, StandardCharsets.UTF_8)
-                    .filter(url -> url.startsWith(mainURL.getPath()))
+                    .filter(url -> url.startsWith(mainURL.toString()))
                     .forEach(url -> {
                         try {
                             urls.add(new URL(url));
@@ -48,16 +48,16 @@ public class Website {
     }
 
     public boolean permitsCrawl(URL url) {
-        return robots.query(userAgent, url.getPath()) && handled.stream()
-                .filter(handUrr -> url.getPath().startsWith(handUrr.getPath())).count() != 0;
+        return robots.query(userAgent, url.toString()) && (url.equals(mainURL) || handled.stream()
+                .filter(handUrr -> url.toString().startsWith(handUrr.toString())).count() != 0);
     }
 
     public Document getDocument(URL url) {
         org.jsoup.nodes.Document innerDocument = null;
         try {
-            innerDocument = Jsoup.connect(url.getPath())
-                    .data("query", "Java")
-                    .userAgent(userAgent)
+            innerDocument = Jsoup.connect(url.toString())
+                    //.data("query", "Java")
+                    //.userAgent(userAgent)
                     .get();
         } catch (IOException e) {
             System.out.println(e.getMessage());
