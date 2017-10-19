@@ -11,7 +11,7 @@ public class Frontier {
     Frontier(List<URL> firstURLs) {
         queue = new LinkedList<>();
         for (URL firstURL : firstURLs) {
-            Website website = new Website();
+            Website website = new Website(firstURL);
             queue.add(new Crawler.WebsiteAndUrl(website, firstURL));
         }
     }
