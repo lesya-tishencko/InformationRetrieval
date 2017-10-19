@@ -1,8 +1,8 @@
 package ru.spbau.ir.books;
 
-import javafx.scene.shape.Path;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 
 public class Document {
