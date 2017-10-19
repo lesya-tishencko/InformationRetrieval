@@ -2,6 +2,7 @@ package ru.spbau.ir.books;
 
 import java.net.URL;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class Frontier {
@@ -16,14 +17,14 @@ public class Frontier {
         return queue.isEmpty();
     }
 
-    public Website nextSite() {
+    public Crawler.WebsiteAndUrl nextSite() {
         URL current = queue.remove();
         /* обработка url */
         return null;
     }
 
-    public void addUrl(URL url) {
-        queue.add(url);
+    public void addUrl(List<URL> url) {
+
     }
 
     public void releaseSite(Website website) {

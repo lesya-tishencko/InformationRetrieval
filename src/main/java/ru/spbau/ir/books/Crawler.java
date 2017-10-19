@@ -1,29 +1,38 @@
 package ru.spbau.ir.books;
 
+import javafx.scene.shape.Path;
+
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Crawler {
 
+    private Set<URL> sets = new HashSet<URL>();
+    private Path pathForStoring;
+
     public void crawlerThread(Frontier frontier) {
         while (!frontier.done()) {
-            Website website = frontier.nextSite();
-            URL url = website.nextURL();
-            if (website.permitsCrawl(url)) {
-                Document text = retrieveUrl(url);
-                storeDocument(url, text);
-                for (URL urlItem : text.parse()) {
-                    frontier.addUrl(urlItem);
+            WebsiteAndUrl siteAndUrl = frontier.nextSite();
+            Website site = siteAndUrl.site;
+            URL url = siteAndUrl.url;
+            if (!sets.contains(url)) {
+                if (site.permitsCrawl(url)) {
+                    Document document = site.getDocument();
+                    document.store(pathForStoring);
+                    frontier.addUrl(document.parse());
                 }
             }
-            frontier.releaseSite(website);
         }
     }
 
-    private void storeDocument(URL url, Document text) {
+    static class WebsiteAndUrl {
+        Website site;
+        URL url;
 
-    }
-
-    private Document retrieveUrl(URL url) {
-        return null;
+        WebsiteAndUrl(Website site, URL url) {
+            this.site = site;
+            this.url = url;
+        }
     }
 }
