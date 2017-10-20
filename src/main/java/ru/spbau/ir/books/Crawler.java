@@ -4,11 +4,14 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class Crawler {
 
     private final Map<URL, Path> processedUrls = new HashMap<>();
+    private final Set<URL> seen = new HashSet<>();
     private final Path pathForStoring;
     private final Path handledURLs;
     private final Path mainURLs;
@@ -27,7 +30,8 @@ public class Crawler {
             WebsiteAndUrl siteAndUrl = frontier.nextSite();
             Website site = siteAndUrl.site;
             URL url = siteAndUrl.url;
-            if (!processedUrls.containsKey(url)) {
+            if (!seen.contains(url)) {
+                seen.add(url);
                 if (site.permitsCrawl(url)) {
                     Document document = site.getDocument(url);
                     document.store(pathForStoring, documentsCounter);
@@ -40,11 +44,10 @@ public class Crawler {
     }
 
     public static void main(String[] args) {
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
-        Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
-        Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
-        Path pageStoragePath = Paths.get(loader.getResource("pageStorage").getPath());
-        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+        Path mainPath = Paths.get("mainUrls.txt");
+        Path handledUrlsPath = Paths.get("handledUrls.txt");
+        Path pageStorageDir = Paths.get("pageStorage");
+        Crawler crawler = new Crawler(pageStorageDir, handledUrlsPath, mainPath);
         crawler.crawlerThread();
     }
 
