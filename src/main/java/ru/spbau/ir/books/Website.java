@@ -20,14 +20,14 @@ public class Website {
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
     private final String userAgent = "AUbooks_bot";
-    private int delayTime = 1000;
+    private double delayTime = 1.0;
 
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
         processHandledUrls(unhandledURL);
         try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
             robots = RobotsTxt.read(robotsTxtStream);
-            delayTime = max(robots.getCrawlDelay(), 1000);
+            delayTime = max(robots.getCrawlDelay(), 1.0);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -49,7 +49,7 @@ public class Website {
         }
     }
 
-    public int getDelayTime() {
+    public double getDelayTime() {
         return delayTime;
     }
 
