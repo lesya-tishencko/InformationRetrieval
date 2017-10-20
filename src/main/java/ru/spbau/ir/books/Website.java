@@ -13,30 +13,33 @@ import com.panforge.robotstxt.RobotsTxt;
 import java.nio.file.Path;
 import org.jsoup.Jsoup;
 
+import static java.lang.Math.max;
+
 public class Website {
     private RobotsTxt robots;
     private final URL mainURL;
-    private final List<URL> handled;
-    private final String userAgent = "lesya_bot";
+    private final List<URL> handled = new ArrayList<>();
+    private final String userAgent = "AUbooks_bot";
+    private int connectionTimeout = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
-        handled = processUnhandledUrls(unhandledURL);
+        processHandledUrls(unhandledURL);
         try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
             robots = RobotsTxt.read(robotsTxtStream);
+            connectionTimeout = max(robots.getCrawlDelay(), 1000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private List<URL> processUnhandledUrls(Path unhandledURL) {
-        List<URL> urls = new ArrayList<>();
+    private void processHandledUrls(Path unhandledURL) {
         try {
             Files.lines(unhandledURL, StandardCharsets.UTF_8)
                     .filter(url -> url.startsWith(mainURL.toString()))
                     .forEach(url -> {
                         try {
-                            urls.add(new URL(url));
+                            handled.add(new URL(url));
                         } catch (MalformedURLException e) {
                             System.out.println(e.getMessage());
                         }
@@ -44,12 +47,15 @@ public class Website {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return urls;
     }
 
     public boolean permitsCrawl(URL url) {
-        return robots.query(userAgent, url.toString()) && (url.equals(mainURL) || handled.stream()
-                .filter(handUrr -> url.toString().startsWith(handUrr.toString())).count() != 0);
+        boolean isAllow = robots.query(userAgent, url.toString());
+        if (handled.size() > 0) {
+            isAllow = isAllow && (url.equals(mainURL)
+                    || handled.stream().filter(handUrr -> url.toString().startsWith(handUrr.toString())).count() != 0);
+        }
+        return isAllow;
     }
 
     public Document getDocument(URL url) {
