@@ -1,5 +1,6 @@
 package ru.spbau.ir.books;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,19 +21,35 @@ public class Website {
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
     private final String userAgent = "AUbooks_bot";
-    private int delayTime = 1000;
+    private double delayTime = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
         processHandledUrls(unhandledURL);
         try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
             robots = RobotsTxt.read(robotsTxtStream);
-            delayTime = max(robots.getCrawlDelay(), 1000);
+            delayTime = max(getCrawlDelay(), 1000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
+    private double getCrawlDelay() {
+        try(DataInputStream robotsTxtStream = new DataInputStream(new URL(mainURL.toString() + "/robots.txt").openStream())) {
+            String robotsTxtContents = robotsTxtStream.readUTF();
+            String[] lines = robotsTxtContents.split("\\n");
+            for (String line : lines) {
+                if (line.startsWith("Crawl-delay: ")) {
+                    String delayString = line.split(": ")[1];
+                    return Double.parseDouble(delayString) * 1000;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return 0;
+    }
+    
     private void processHandledUrls(Path unhandledURL) {
         try {
             Files.lines(unhandledURL, StandardCharsets.UTF_8)
