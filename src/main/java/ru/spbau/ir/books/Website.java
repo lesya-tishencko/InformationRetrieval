@@ -7,6 +7,7 @@ import java.net.URL;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,8 @@ public class Website {
     private RobotsTxt robots;
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
-    private final String userAgent = "AUbooks_bot";
+    private LocalDateTime updateTime;
+    private static String userAgent = "AUbooks_bot";
     private double delayTime = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
@@ -70,6 +72,10 @@ public class Website {
         return delayTime;
     }
 
+    public int getLastUpdated() {
+        return updateTime.getSecond();
+    }
+
     public boolean permitsCrawl(URL url) {
         boolean isAllow = robots.query(userAgent, url.toString());
         if (handled.size() > 0) {
@@ -82,15 +88,22 @@ public class Website {
     public Document getDocument(URL url) {
         org.jsoup.nodes.Document innerDocument = null;
         try {
+            int remainTime = canUpdate();
+            if (remainTime > 0)
+                Thread.sleep(remainTime);
+            updateTime = LocalDateTime.now();
             innerDocument = Jsoup.connect(url.toString())
                     .userAgent(userAgent)
                     .get();
-            Thread.sleep(1000);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return new Document(innerDocument);
+    }
+
+    private int canUpdate() {
+        return LocalDateTime.now().getSecond() - updateTime.getSecond() + Math.toIntExact(Math.round(delayTime));
     }
 }
