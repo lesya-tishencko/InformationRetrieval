@@ -7,16 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class Frontier {
     private Queue<Crawler.WebsiteAndUrl> queue;
 
+    private static Comparator<Crawler.WebsiteAndUrl> queueComparator = Comparator.comparingDouble(o -> o.site.getDelayTime());
+
     Frontier(Path mainURLs, Path unhandled) {
-        queue = new LinkedList<>();
+        queue = new PriorityQueue<>(queueComparator);
         List<URL> firstURLs = new ArrayList<>();
         try {
             Files.lines(mainURLs, StandardCharsets.UTF_8).forEach(str -> {
