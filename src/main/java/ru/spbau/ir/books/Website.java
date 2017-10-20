@@ -20,14 +20,14 @@ public class Website {
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
     private final String userAgent = "AUbooks_bot";
-    private int connectionTimeout = 1000;
+    private int delayTime = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
         processHandledUrls(unhandledURL);
         try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
             robots = RobotsTxt.read(robotsTxtStream);
-            connectionTimeout = max(robots.getCrawlDelay(), 1000);
+            delayTime = max(robots.getCrawlDelay(), 1000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
