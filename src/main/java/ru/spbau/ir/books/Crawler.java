@@ -3,14 +3,12 @@ package ru.spbau.ir.books;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Crawler {
 
     private final Map<URL, Path> processedUrls = new HashMap<>();
+    private final Set<URL> seen = new HashSet<>();
     private final Path pathForStoring;
     private final Path handledURLs;
     private final Path mainURLs;
@@ -41,7 +39,8 @@ public class Crawler {
             WebsiteAndUrl siteAndUrl = frontier.nextSite();
             Website site = siteAndUrl.site;
             URL url = siteAndUrl.url;
-            if (!processedUrls.containsKey(url)) {
+            if (!seen.contains(url)) {
+                seen.add(url);
                 if (site.permitsCrawl(url)) {
                     Document document = site.getDocument(url);
                     document.store(pathForStoring, docsCounter);
