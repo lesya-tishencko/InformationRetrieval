@@ -28,7 +28,6 @@ public class Document {
                 e.printStackTrace();
             }
         }
-        System.out.println(urls.size());
         return urls;
     }
 

@@ -8,15 +8,16 @@ import java.nio.file.Path;
 
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class Frontier {
-    private Queue<Crawler.WebsiteAndUrl> queue;
+    private PriorityBlockingQueue<Crawler.WebsiteAndUrl> queue;
 
     private static Comparator<Crawler.WebsiteAndUrl> queueComparator = Comparator
             .comparingInt(o -> o.site.getLastUpdated() + o.site.getDelayTime());
 
     Frontier(Path mainURLs, Path unhandled) {
-        queue = new PriorityQueue<>(queueComparator);
+        queue = new PriorityBlockingQueue<>(1, queueComparator);
         List<URL> firstURLs = new ArrayList<>();
         try {
             Files.lines(mainURLs, StandardCharsets.UTF_8).forEach(str -> {
