@@ -49,6 +49,10 @@ public class Website {
         }
     }
 
+    public int getDelayTime() {
+        return delayTime;
+    }
+
     public boolean permitsCrawl(URL url) {
         boolean isAllow = robots.query(userAgent, url.toString());
         if (handled.size() > 0) {
