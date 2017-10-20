@@ -24,6 +24,7 @@ public class Crawler {
     }
 
     public void crawlerThread() {
+        int documentsCounter = 1;
         while (!frontier.done()) {
             WebsiteAndUrl siteAndUrl = frontier.nextSite();
             Website site = siteAndUrl.site;
@@ -31,7 +32,8 @@ public class Crawler {
             if (!processedUrls.containsKey(url)) {
                 if (site.permitsCrawl(url)) {
                     Document document = site.getDocument(url);
-                    document.store(pathForStoring);
+                    document.store(pathForStoring, documentsCounter);
+                    documentsCounter++;
                     processedUrls.put(url, pathForStoring);
                     frontier.addUrl(document.parse(), site);
                 }

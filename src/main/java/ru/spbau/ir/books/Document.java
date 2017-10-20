@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Document {
     private org.jsoup.nodes.Document htmlPage;
+    String patternInFileName = "page";
 
     Document(org.jsoup.nodes.Document htmlPage) {
         this.htmlPage = htmlPage;
@@ -27,13 +28,12 @@ public class Document {
                 e.printStackTrace();
             }
         }
+        System.out.println(urls.size());
         return urls;
     }
-    String pattern = "page";
-    int counter = 1;
 
-    public void store(Path path) {
-        File file = new File(path.toFile().getAbsolutePath() + "/" + pattern + counter + ".html");
+    public void store(Path path, int suffixOfFileName) {
+        File file = new File(path.toFile().getAbsolutePath() + "/" + patternInFileName + suffixOfFileName + ".html");
         boolean result = false;
         if (!file.exists()) {
             try {
@@ -51,6 +51,16 @@ public class Document {
         }
         try {
             fout.writeChars(htmlPage.outerHtml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fout.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fout.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
