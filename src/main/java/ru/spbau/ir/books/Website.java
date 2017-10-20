@@ -56,11 +56,14 @@ public class Website {
         org.jsoup.nodes.Document innerDocument = null;
         try {
             innerDocument = Jsoup.connect(url.toString())
-                    //.data("query", "Java")
-                    //.userAgent(userAgent)
+                    .data("query", "Java")
+                    .userAgent(userAgent)
                     .get();
+            Thread.sleep(1000);
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return new Document(innerDocument);
     }

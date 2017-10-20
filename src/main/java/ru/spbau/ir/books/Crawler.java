@@ -1,6 +1,8 @@
 package ru.spbau.ir.books;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -38,11 +40,10 @@ public class Crawler {
     }
 
     public static void main(String[] args) {
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
-        Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
-        Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
-        Path pageStoragePath = Paths.get(loader.getResource("pageStorage").getPath());
-        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+        Path mainPath = Paths.get("mainUrls.txt");
+        Path handledUrlsPath = Paths.get("handledUrls.txt");
+        Path pageStorageDir = Paths.get("pageStorage");
+        Crawler crawler = new Crawler(pageStorageDir, handledUrlsPath, mainPath);
         crawler.crawlerThread();
     }
 
