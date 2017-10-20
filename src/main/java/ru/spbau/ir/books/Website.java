@@ -1,5 +1,6 @@
 package ru.spbau.ir.books;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -13,6 +14,8 @@ import java.util.List;
 
 import com.panforge.robotstxt.RobotsTxt;
 import java.nio.file.Path;
+
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import static java.lang.Math.max;
@@ -21,34 +24,49 @@ public class Website {
     private RobotsTxt robots;
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
-    private LocalDateTime updateTime;
+    private LocalDateTime updateTime = null;
     private static String userAgent = "AUbooks_bot";
-    private double delayTime = 1000;
+    private Integer delayTime = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
         mainURL = siteUrl;
         processHandledUrls(unhandledURL);
-        try (InputStream robotsTxtStream = new URL(siteUrl.toString() + "/robots.txt").openStream()) {
-            robots = RobotsTxt.read(robotsTxtStream);
-            delayTime = max(getCrawlDelay(), 1000);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        byte[] robotsTxtContentsBytes = null;
+        try {
+            robotsTxtContentsBytes = Jsoup.connect(siteUrl.toString() + "/robots.txt")
+                    .userAgent(userAgent)
+                    .timeout(delayTime)
+                    .execute()
+                    .bodyAsBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        InputStream robotsTxtStream = new ByteArrayInputStream(robotsTxtContentsBytes);
+        try {
+            robots = RobotsTxt.read(robotsTxtStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        delayTime = max(getCrawlDelay(), 500);
     }
 
-    private double getCrawlDelay() {
-        try(DataInputStream robotsTxtStream = new DataInputStream(new URL(mainURL.toString() + "/robots.txt").openStream())) {
-            String robotsTxtContents = robotsTxtStream.readUTF();
-            String[] lines = robotsTxtContents.split("\\n");
+    private int getCrawlDelay() {
+        Connection connection = Jsoup.connect(mainURL.toString() + "/robots.txt")
+                .userAgent(userAgent)
+                .timeout(delayTime);
+        String robotsTxtContents = null;
+        try {
+            robotsTxtContents = connection.execute().body();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] lines = robotsTxtContents.split("\\n");
             for (String line : lines) {
                 if (line.startsWith("Crawl-delay: ")) {
                     String delayString = line.split(": ")[1];
-                    return Double.parseDouble(delayString) * 1000;
+                    return (int)Double.parseDouble(delayString) * 1000;
                 }
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
         return 0;
     }
     
@@ -60,19 +78,21 @@ public class Website {
                         try {
                             handled.add(new URL(url));
                         } catch (MalformedURLException e) {
-                            System.out.println(e.getMessage());
+                            e.printStackTrace();
                         }
                     });
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    public double getDelayTime() {
+    public int getDelayTime() {
         return delayTime;
     }
 
     public int getLastUpdated() {
+        if (updateTime == null)
+                return 0;
         return updateTime.getSecond();
     }
 
@@ -96,7 +116,7 @@ public class Website {
                     .userAgent(userAgent)
                     .get();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -104,6 +124,8 @@ public class Website {
     }
 
     private int canUpdate() {
+        if (updateTime == null)
+            return 0;
         return LocalDateTime.now().getSecond() - updateTime.getSecond() + Math.toIntExact(Math.round(delayTime));
     }
 }

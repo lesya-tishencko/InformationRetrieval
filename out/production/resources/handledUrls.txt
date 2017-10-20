@@ -1,7 +1,4 @@
-https://www.livelib.ru/books/movers-and-shakers
-https://www.livelib.ru/books/novelties
-https://www.livelib.ru/books/annual/2017
-https://www.livelib.ru/books/bestsellers
-https://www.livelib.ru/books/top
-https://www.livelib.ru/selection/1431-ekranizirovannye-knigi
-https://www.livelib.ru/books/annual/2016
+https://bookmix.ru/reviews.phtml
+https://bookmix.ru/bookcategory.phtml
+https://bookmix.ru/book.phtml
+https://readrate.com/rus/books

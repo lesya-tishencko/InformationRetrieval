@@ -13,7 +13,7 @@ public class Frontier {
     private Queue<Crawler.WebsiteAndUrl> queue;
 
     private static Comparator<Crawler.WebsiteAndUrl> queueComparator = Comparator
-            .comparingDouble(o -> o.site.getLastUpdated() + o.site.getDelayTime());
+            .comparingInt(o -> o.site.getLastUpdated() + o.site.getDelayTime());
 
     Frontier(Path mainURLs, Path unhandled) {
         queue = new PriorityQueue<>(queueComparator);

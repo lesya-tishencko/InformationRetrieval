@@ -1,1 +1,4 @@
-ttps://www.litres.ru/knigi-psihologiya
+https://bookmix.ru/reviews.phtml
+https://bookmix.ru/bookcategory.phtml
+https://bookmix.ru/book.phtml
+https://readrate.com/rus/books
