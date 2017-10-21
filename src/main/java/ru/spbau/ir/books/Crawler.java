@@ -44,10 +44,11 @@ public class Crawler {
     }
 
     public static void main(String[] args) {
-        Path mainPath = Paths.get("mainUrls.txt");
-        Path handledUrlsPath = Paths.get("handledUrls.txt");
-        Path pageStorageDir = Paths.get("pageStorage");
-        Crawler crawler = new Crawler(pageStorageDir, handledUrlsPath, mainPath);
+        String path = System.getProperty("user.dir");
+        Path mainPath = Paths.get(path + "/build/resources/main/mainUrls.txt");
+        Path handledUrlsPath = Paths.get(path + "/build/resources/main/handledUrls.txt");
+        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage");
+        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
         crawler.crawlerThread();
     }
 

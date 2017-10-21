@@ -47,7 +47,8 @@ public class Website {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        delayTime = max(getCrawlDelay(), 500);
+        int delayTimeFromRobotsTxt = getCrawlDelay();
+        delayTime = delayTimeFromRobotsTxt == 0? 500 : delayTimeFromRobotsTxt;
     }
 
     private int getCrawlDelay() {
