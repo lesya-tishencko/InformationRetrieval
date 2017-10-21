@@ -1,0 +1,4 @@
+https://aldebaran.ru/author
+https://bookmix.ru/reviews.phtml
+https://bookmix.ru/bookcategory.phtml
+https://bookmix.ru/book.phtml
