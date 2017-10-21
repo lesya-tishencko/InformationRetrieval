@@ -1,7 +1,6 @@
 package ru.spbau.ir.books;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,14 +17,12 @@ import java.nio.file.Path;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-import static java.lang.Math.max;
-
-public class Website {
-    private RobotsTxt robots;
+class Website {
+    private static final String userAgent = "AUbooks_bot";
     private final URL mainURL;
     private final List<URL> handled = new ArrayList<>();
+    private RobotsTxt robots;
     private LocalDateTime updateTime = null;
-    private static String userAgent = "AUbooks_bot";
     private Integer delayTime = 1000;
 
     public Website(URL siteUrl, Path unhandledURL) {
@@ -38,14 +35,12 @@ public class Website {
                     .timeout(delayTime)
                     .execute()
                     .bodyAsBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
-        InputStream robotsTxtStream = new ByteArrayInputStream(robotsTxtContentsBytes);
-        try {
+
+        try (InputStream robotsTxtStream = new ByteArrayInputStream(robotsTxtContentsBytes)){
             robots = RobotsTxt.read(robotsTxtStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
         int delayTimeFromRobotsTxt = getCrawlDelay();
         delayTime = delayTimeFromRobotsTxt == 0? 500 : delayTimeFromRobotsTxt;
@@ -58,8 +53,7 @@ public class Website {
         String robotsTxtContents = null;
         try {
             robotsTxtContents = connection.execute().body();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
         String[] lines = robotsTxtContents.split("\\n");
             for (String line : lines) {
@@ -78,12 +72,10 @@ public class Website {
                     .forEach(url -> {
                         try {
                             handled.add(new URL(url));
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
+                        } catch (MalformedURLException ignored) {
                         }
                     });
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 
@@ -116,12 +108,13 @@ public class Website {
             innerDocument = Jsoup.connect(url.toString())
                     .userAgent(userAgent)
                     .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         return new Document(innerDocument);
+    }
+
+    public boolean isInnerUrl(URL url) {
+        return url.toString().startsWith(mainURL.toString());
     }
 
     private int canUpdate() {

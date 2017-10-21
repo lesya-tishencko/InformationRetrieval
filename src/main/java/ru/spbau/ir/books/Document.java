@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Document {
-    private org.jsoup.nodes.Document htmlPage;
-    String patternInFileName = "page";
+    private final org.jsoup.nodes.Document htmlPage;
+    private final String patternInFileName = "page";
 
     Document(org.jsoup.nodes.Document htmlPage) {
         this.htmlPage = htmlPage;
@@ -24,11 +24,9 @@ public class Document {
         for (String urlString : urlsStrings) {
             try {
                 urls.add(new URL(urlString));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            } catch (MalformedURLException ignored) {
             }
         }
-        System.out.println(urls.size());
         return urls;
     }
 
@@ -38,31 +36,15 @@ public class Document {
         if (!file.exists()) {
             try {
                 result = file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
             if (!result) return;
         }
-        DataOutputStream fout = null;
-        try {
-            fout = new DataOutputStream(new FileOutputStream(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
+
+        try (DataOutputStream fout = new DataOutputStream(new FileOutputStream(file))){
             fout.writeChars(htmlPage.outerHtml());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
             fout.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            fout.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 }

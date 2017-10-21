@@ -8,26 +8,24 @@ import java.nio.file.Path;
 
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
-public class Frontier {
-    private Queue<Crawler.WebsiteAndUrl> queue;
-
-    private static Comparator<Crawler.WebsiteAndUrl> queueComparator = Comparator
+class Frontier {
+    private static final Comparator<Crawler.WebsiteAndUrl> queueComparator = Comparator
             .comparingInt(o -> o.site.getLastUpdated() + o.site.getDelayTime());
+    private final PriorityBlockingQueue<Crawler.WebsiteAndUrl> queue;
 
     Frontier(Path mainURLs, Path unhandled) {
-        queue = new PriorityQueue<>(queueComparator);
+        queue = new PriorityBlockingQueue<>(1, queueComparator);
         List<URL> firstURLs = new ArrayList<>();
         try {
             Files.lines(mainURLs, StandardCharsets.UTF_8).forEach(str -> {
                 try {
                     firstURLs.add(new URL(str));
-                } catch (MalformedURLException e) {
-                    System.out.println(e.getMessage());
+                } catch (MalformedURLException ignored) {
                 }
             });
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        } catch (IOException ignored) {
         }
         for (URL firstURL : firstURLs) {
             Website website = new Website(firstURL, unhandled);
@@ -45,7 +43,8 @@ public class Frontier {
 
     public void addUrl(List<URL> urls, Website website) {
         for (URL url : urls) {
-            queue.add(new Crawler.WebsiteAndUrl(website, url));
+            if (website.isInnerUrl(url))
+                queue.add(new Crawler.WebsiteAndUrl(website, url));
         }
     }
 }
