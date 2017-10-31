@@ -12,7 +12,7 @@ public class Crawler {
     private final Set<URL> seen = new HashSet<>();
     private final Path pathForStoring;
     private final Frontier frontier;
-    private final AtomicInteger docsCounter = new AtomicInteger(1);
+    private final AtomicInteger docsCounter = new AtomicInteger(35935);
 
     private Crawler(Path forStoring, Path handledURLs, Path mainUrls) {
         pathForStoring = forStoring;

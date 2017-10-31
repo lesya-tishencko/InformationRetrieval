@@ -25,6 +25,7 @@ public class Document {
             try {
                 urls.add(new URL(urlString));
             } catch (MalformedURLException ignored) {
+                ignored.printStackTrace();
             }
         }
         return urls;
@@ -37,6 +38,7 @@ public class Document {
             try {
                 result = file.createNewFile();
             } catch (IOException ignored) {
+                ignored.printStackTrace();
             }
             if (!result) return;
         }
@@ -45,6 +47,7 @@ public class Document {
             fout.writeChars(htmlPage.outerHtml());
             fout.flush();
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
     }
 }

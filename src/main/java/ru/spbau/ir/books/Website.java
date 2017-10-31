@@ -36,11 +36,13 @@ class Website {
                     .execute()
                     .bodyAsBytes();
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
 
         try (InputStream robotsTxtStream = new ByteArrayInputStream(robotsTxtContentsBytes)){
             robots = RobotsTxt.read(robotsTxtStream);
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
         int delayTimeFromRobotsTxt = getCrawlDelay();
         delayTime = delayTimeFromRobotsTxt == 0? 500 : delayTimeFromRobotsTxt;
@@ -54,6 +56,7 @@ class Website {
         try {
             robotsTxtContents = connection.execute().body();
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
         String[] lines = robotsTxtContents.split("\\n");
             for (String line : lines) {
@@ -73,9 +76,11 @@ class Website {
                         try {
                             handled.add(new URL(url));
                         } catch (MalformedURLException ignored) {
+                            ignored.printStackTrace();
                         }
                     });
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
     }
 
@@ -109,6 +114,7 @@ class Website {
                     .userAgent(userAgent)
                     .get();
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         return new Document(innerDocument);
     }

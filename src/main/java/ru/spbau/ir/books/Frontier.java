@@ -23,9 +23,11 @@ class Frontier {
                 try {
                     firstURLs.add(new URL(str));
                 } catch (MalformedURLException ignored) {
+                    ignored.printStackTrace();
                 }
             });
         } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
         for (URL firstURL : firstURLs) {
             Website website = new Website(firstURL, unhandled);
