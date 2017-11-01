@@ -1,4 +1,2 @@
-https://bookmix.ru/reviews.phtml
-https://bookmix.ru/bookcategory.phtml
-https://bookmix.ru/book.phtml
-https://readrate.com/rus/books
+https://mybook.ru/author
+http://www.kniga.com/books

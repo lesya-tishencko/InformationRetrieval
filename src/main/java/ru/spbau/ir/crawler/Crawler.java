@@ -1,4 +1,4 @@
-package ru.spbau.ir.books;
+package ru.spbau.ir.crawler;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -34,18 +34,19 @@ public class Crawler {
     }
 
     public static void main(String[] args) {
+        /*
         String path = System.getProperty("user.dir");
         Path mainPath = Paths.get(path + "/build/resources/main/mainUrls.txt");
         Path handledUrlsPath = Paths.get(path + "/build/resources/main/handledUrls.txt");
         Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage");
-        new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+        new Crawler(pageStoragePath, handledUrlsPath, mainPath);*/
 
-        /* for Linux
+        // for Linux
         ClassLoader loader = ClassLoader.getSystemClassLoader();
         Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
         Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
         Path pageStoragePath = Paths.get(loader.getResource("pageStorage").getPath());
-        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);*/
+        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
     }
 
     private void crawlerThread() {
@@ -60,6 +61,7 @@ public class Crawler {
                     document.store(pathForStoring, docsCounter.get());
                     docsCounter.incrementAndGet();
                     processedUrls.put(url, pathForStoring);
+                    if (document == null) continue;
                     frontier.addUrl(document.parse(), site);
                 }
             }
