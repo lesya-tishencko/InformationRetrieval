@@ -6,15 +6,11 @@ import java.util.List;
 
 class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
     private final int id;
-    private int frequency = 0;
     private final List<Integer> positions = new ArrayList<>();
+    private int frequency = 0;
 
     DocumentBlock(int id) {
         this.id = id;
-    }
-
-    public void setFrequency(int frequency) {
-        this.frequency = frequency;
     }
 
     int getId() {
@@ -23,6 +19,10 @@ class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
 
     int getFrequency() {
         return frequency;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
     }
 
     void increaseFrequency() {

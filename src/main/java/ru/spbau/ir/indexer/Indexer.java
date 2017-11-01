@@ -1,18 +1,40 @@
 package ru.spbau.ir.indexer;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class Indexer {
+
     private HashMap<String, PriorityQueue<DocumentBlock>> map = new HashMap<>();
-    private  HashMap<String, FileOffsets> wordsOffsets;
+    private HashMap<String, FileOffsets> wordsOffsets;
     private File mapFile;
     private File offsetsFile;
     private SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.RUSSIAN);
+
+    public static void main(String[] args) {
+        Indexer indexer = new Indexer();
+        indexer.addToIndex("Мама, мама мыла раму раму раму", 0);
+        indexer.addToIndex("Мама, мама мама мама мыла раму раму раму", 1);
+        indexer.addToIndex("папа папа мыл раму раму раму раму раму", 2);
+        indexer.addToIndex("Бабушка, бабушка мыла раму", 3);
+        indexer.addToIndex("Тетя, тетя мыла раму раму", 4);
+        indexer.addToIndex("Дядя, дядя мыл раму", 5);
+        indexer.storeMapToFile(Paths.get("/home/angelika/Desktop/IR/BookSearch/InformationRetrieval/src/main/resources/Maps/map"));
+        indexer.storeWordsOffsetsToFile(Paths.get("/home/angelika/Desktop/IR/BookSearch/InformationRetrieval/src/main/resources/Maps/offsets"));
+        PriorityQueue<DocumentBlock> queue = indexer.getWordQueue("бабушк");
+        System.out.println(queue);
+    }
 
     public void addToIndex(String text, int id) {
         HashMap<String, DocumentBlock> textHashMap = getMapFromText(text, id);
@@ -63,22 +85,8 @@ public class Indexer {
         return result.toString();
     }
 
-    private static class FileOffsets implements Serializable {
-        final long start;
-        final long end;
-
-        FileOffsets(long start, long end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        @Override
-        public String toString() {
-            return "start = " + start + ", end = " + end;
-        }
-    }
-
-    public void storeMapToFileAndGetDictionary(Path pathToFile) {
+    public void storeMapToFile(Path pathToFile) {
+        Gson gson = new Gson();
         File file = new File(pathToFile.toFile().getAbsolutePath());
         if (!file.exists()) {
             try {
@@ -96,11 +104,10 @@ public class Indexer {
              ObjectOutputStream outputStream = new ObjectOutputStream(dataOutputStream)) {
             map.forEach((word, documentBlocks) -> {
                 try {
-                    long start = dataOutputStream.size();
-                    outputStream.writeChars(word);
-                    outputStream.writeObject(documentBlocks);
-                    outputStream.flush();
-                    long end = dataOutputStream.size();
+                    int start = dataOutputStream.size();
+                    dataOutputStream.writeChars(gson.toJson(documentBlocks));
+                    dataOutputStream.flush();
+                    int end = dataOutputStream.size();
                     offsets.put(word, new FileOffsets(start, end));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -115,7 +122,7 @@ public class Indexer {
         this.wordsOffsets = offsets;
     }
 
-    public void storeWordOffsetsToFile(Path pathToFile) {
+    public void storeWordsOffsetsToFile(Path pathToFile) {
         File file = new File(pathToFile.toFile().getAbsolutePath());
         if (!file.exists()) {
             try {
@@ -138,13 +145,56 @@ public class Indexer {
 
     public HashMap<String, FileOffsets> getWordsOffsets() {
         if (wordsOffsets == null) {
-            try(FileInputStream fileInputStream = new FileInputStream(offsetsFile);
-                ObjectInputStream inputStream = new ObjectInputStream(fileInputStream)) {
+            try (FileInputStream fileInputStream = new FileInputStream(offsetsFile);
+                 ObjectInputStream inputStream = new ObjectInputStream(fileInputStream)) {
                 wordsOffsets = (HashMap<String, FileOffsets>) inputStream.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
         return wordsOffsets;
+    }
+
+    public PriorityQueue<DocumentBlock> getWordQueue(String word) {
+        PriorityQueue<DocumentBlock> priorQueue = null;
+        FileOffsets offsets;
+        if (wordsOffsets.containsKey(word)) {
+            offsets = wordsOffsets.get(word);
+        } else {
+            return null;
+        }
+        byte[] objectBuffer = new byte[offsets.end - offsets.start];
+        try (FileInputStream fileInputStream = new FileInputStream(mapFile)) {
+            long actualStart = fileInputStream.skip(offsets.start);
+            if (actualStart != offsets.start) {
+                throw new IOException("Incorrect number of bytes was skipped");
+            }
+            int read = fileInputStream.read(objectBuffer);
+            if (read != objectBuffer.length) {
+                throw new IOException("Number of read bytes is incorrect");
+            }
+            Gson gson = new Gson();
+            Type type = new TypeToken<PriorityQueue<DocumentBlock>>() {
+            }.getType();
+            priorQueue = gson.fromJson(new String(objectBuffer, StandardCharsets.UTF_16), type);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return priorQueue;
+    }
+
+    private static class FileOffsets implements Serializable {
+        final int start;
+        final int end;
+
+        FileOffsets(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public String toString() {
+            return "start = " + start + ", end = " + end;
+        }
     }
 }
