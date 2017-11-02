@@ -1,4 +1,4 @@
-package ru.spbau.ir.books;
+package ru.spbau.ir.crawler;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

@@ -8,9 +8,9 @@ import java.sql.Statement;
 import java.util.List;
 
 public class DBHandler {
-    private final String connectionString = "";
-    private final String user = "";
-    private final String password = "";
+    private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
+    private final String user = "postgres";
+    private final String password = "RedDress2";
 
     public DBHandler() {
         Connection connection = null;
@@ -22,8 +22,8 @@ public class DBHandler {
             statement = connection.createStatement();
             String sql = "CREATE TABLE books (" +
                         "id int PRIMARY KEY, " +
-                        "getName char(30) NOT NULL, " +
-                        "getAuthor char(30) NOT NULL, " +
+                        "getName text NOT NULL, " +
+                        "getAuthor text NOT NULL, " +
                         "getDescription text, " +
                         "getSite text NOT NULL)";
             statement.executeUpdate(sql);
@@ -56,10 +56,10 @@ public class DBHandler {
             String site = book.getSite();
             String sql = "INSERT INTO books VALUES (" +
                     id + ", " +
-                    name + ", " +
-                    author + ", " +
-                    description + ", " +
-                    site + ");";
+                    "'" + name + "', " +
+                    "E'" + author + "', " +
+                    "E'" + description + "', " +
+                    "E'" + site + "');";
 
             statement.executeUpdate(sql);
             statement.close();
@@ -69,11 +69,12 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Book's record added successfully");
         return true;
     }
 
     public boolean addReviews(int bookId, List<String> reviews) {
+        if (reviews.size() == 0)
+            return false;
         Connection connection = null;
         Statement statement = null;
         try {
@@ -83,9 +84,9 @@ public class DBHandler {
             statement = connection.createStatement();
 
             for (String review : reviews) {
-                String sql = "INSERT INTO books (book_id, review) VALUES (" +
+                String sql = "INSERT INTO reviews (book_id, review) VALUES (" +
                         Integer.toString(bookId) + ", " +
-                        review + ");";
+                        "E'" + review + "');";
 
                 statement.executeUpdate(sql);
             }
@@ -97,7 +98,6 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Review's records added successfully");
         return true;
     }
 
@@ -114,8 +114,8 @@ public class DBHandler {
             String description = book.getDescription();
             String site = book.getSite();
             String sql = "UPDATE books SET " +
-                    "getDescription = " + description + ", " +
-                    "getSite = " + site + " where " +
+                    "getDescription = " + "E'" + description + "', " +
+                    "getSite = " + "E'" + site + "' where " +
                     "id = " + id + ";";
 
             statement.executeUpdate(sql);
@@ -126,7 +126,6 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Book with id " + Integer.toString(book.getId()) + " updated successfully");
         return true;
     }
 }

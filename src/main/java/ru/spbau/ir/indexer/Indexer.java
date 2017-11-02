@@ -22,20 +22,6 @@ public class Indexer {
     private File offsetsFile;
     private SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.RUSSIAN);
 
-    public static void main(String[] args) {
-        Indexer indexer = new Indexer();
-        indexer.addToIndex("Мама, мама мыла раму раму раму", 0);
-        indexer.addToIndex("Мама, мама мама мама мыла раму раму раму", 1);
-        indexer.addToIndex("папа папа мыл раму раму раму раму раму", 2);
-        indexer.addToIndex("Бабушка, бабушка мыла раму", 3);
-        indexer.addToIndex("Тетя, тетя мыла раму раму", 4);
-        indexer.addToIndex("Дядя, дядя мыл раму", 5);
-        indexer.storeMapToFile(Paths.get("/home/angelika/Desktop/IR/BookSearch/InformationRetrieval/src/main/resources/Maps/map"));
-        indexer.storeWordsOffsetsToFile(Paths.get("/home/angelika/Desktop/IR/BookSearch/InformationRetrieval/src/main/resources/Maps/offsets"));
-        PriorityQueue<DocumentBlock> queue = indexer.getWordQueue("бабушк");
-        System.out.println(queue);
-    }
-
     public void addToIndex(String text, int id) {
         HashMap<String, DocumentBlock> textHashMap = getMapFromText(text, id);
         textHashMap.forEach((word, documentBlock) -> {

@@ -1,4 +1,4 @@
-package ru.spbau.ir.books;
+package ru.spbau.ir.crawler;
 
 import java.net.URL;
 import java.nio.file.Path;

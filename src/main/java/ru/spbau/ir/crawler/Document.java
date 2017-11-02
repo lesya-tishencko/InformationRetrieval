@@ -1,4 +1,4 @@
-package ru.spbau.ir.books;
+package ru.spbau.ir.crawler;
 
 import org.jsoup.select.Elements;
 
