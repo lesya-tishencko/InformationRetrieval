@@ -278,7 +278,7 @@ public class Parser {
             if (nextData == null)
                 continue;
             int id = nextData.book.getId();
-            if (id == parser.globalId - 1) {
+            if (parser.isIdIncremented) {
                 dbHandler.addBook(nextData.book);
             } else {
                 dbHandler.updateBook(nextData.book);
