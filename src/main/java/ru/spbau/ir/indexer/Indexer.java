@@ -3,12 +3,18 @@ package ru.spbau.ir.indexer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.ru.RussianAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +44,8 @@ public class Indexer {
     private HashMap<String, DocumentBlock> getMapFromText(String text, int id) {
         text = text.toLowerCase();
         text = removePunctuation(text);
+        text = removeStopWords(text);
+
         List<String> words = Arrays.asList(text.split(" "));
         for (int i = 0; i < words.size(); ++i) {
             String word = words.get(i);
@@ -69,6 +77,28 @@ public class Indexer {
             }
         }
         return result.toString();
+    }
+
+    private String removeStopWords(String text) {
+        CharArraySet stopWords = RussianAnalyzer.getDefaultStopSet();
+        TokenStream tokenStream = new StandardAnalyzer().tokenStream("", new StringReader(text));
+        tokenStream = new StopFilter(tokenStream, stopWords);
+        StringBuilder stringBuilder = new StringBuilder();
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        try {
+            tokenStream.reset();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            while (tokenStream.incrementToken()) {
+                String term = charTermAttribute.toString();
+                stringBuilder.append(term + " ");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 
     public void storeMapToFile(Path pathToFile) {
@@ -143,6 +173,7 @@ public class Indexer {
 
     public PriorityQueue<DocumentBlock> getWordQueue(String word) {
         PriorityQueue<DocumentBlock> priorQueue = null;
+        getWordsOffsets();
         FileOffsets offsets;
         if (wordsOffsets.containsKey(word)) {
             offsets = wordsOffsets.get(word);

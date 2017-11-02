@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
+public class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
     private final int id;
     private final List<Integer> positions = new ArrayList<>();
     private int frequency = 0;

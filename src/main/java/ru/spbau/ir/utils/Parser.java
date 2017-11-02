@@ -6,6 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.spbau.ir.database.DBHandler;
 import ru.spbau.ir.indexer.Indexer;
+import ru.spbau.ir.indexer.DocumentBlock;
 
 import java.io.File;
 import java.io.IOException;
@@ -269,7 +270,7 @@ public class Parser {
 
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
-        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage/test");
+        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage/test");
         Parser parser = new Parser(pageStoragePath);
         DBHandler dbHandler = new DBHandler();
         Indexer indexer = new Indexer();
@@ -288,7 +289,7 @@ public class Parser {
             content += nextData.reviews.stream().collect(Collectors.joining("\n"));
             indexer.addToIndex(content, id);
         }
-        indexer.storeMapToFile(Paths.get(path + "/build/resources/main/indexMap"));
-        indexer.storeWordsOffsetsToFile(Paths.get(path + "/build/resources/main/indexOffsets"));
+        indexer.storeMapToFile(Paths.get(path + "/src/main/resources/Maps/indexMap"));
+        indexer.storeWordsOffsetsToFile(Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class DBHandler {
     private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
-    private final String password = "RedDress2";
+    private final String password = "1234509876";
 
     public DBHandler() {
         Connection connection = null;
