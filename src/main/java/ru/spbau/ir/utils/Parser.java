@@ -7,6 +7,7 @@ import org.jsoup.select.Elements;
 import ru.spbau.ir.database.DBHandler;
 import ru.spbau.ir.indexer.Indexer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,24 +17,18 @@ import java.util.stream.Collectors;
 
 public class Parser {
     private int globalId = 1;
+    private boolean isIdIncremented = false;
     private final Map<String, Book> files = new HashMap<>();
     private final Queue<Document> fileQueue = new LinkedList<>();
 
     public Parser(Path mainPath) {
         try {
-            Files.walk(Paths.get(mainPath.toFile().getAbsolutePath()))
-                    .filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .map(file -> {
-                        try {
-                            return Jsoup.parse(file, "utf-16");
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                            return null;
-                        }
-                    })
-                    .map(fileQueue::add);
-            fileQueue.stream().filter(doc -> doc == null);
+            Path path = Paths.get(mainPath.toFile().getAbsolutePath());
+            List<Path> pathes = Files.walk(path).collect(Collectors.toList());
+            List<File> files = pathes.stream().filter(Files::isRegularFile).map(Path::toFile).collect(Collectors.toList());
+            for (File file: files) {
+                fileQueue.add(Jsoup.parse(file, "utf-16"));
+            }
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -91,10 +86,13 @@ public class Parser {
         Book book = files.getOrDefault(name + author, new Book(globalId, name, author, description, site));
         if (book.getId() == globalId) {
             globalId++;
+            isIdIncremented = true;
             files.put(name + author, book);
-        } else {
+        } else if (!book.getSite().equals(site)){
+            isIdIncremented = false;
             book.update(description, site);
-        }
+        } else
+            return null;
         List<String> reviews = new ArrayList<>();
         links = html.select("div[id^=comment]");
         for (Element element : links) {
@@ -125,10 +123,13 @@ public class Parser {
         Book book = files.getOrDefault(name + author, new Book(globalId, name, author, description, site));
         if (book.getId() == globalId) {
             globalId++;
+            isIdIncremented = true;
             files.put(name + author, book);
-        } else {
+        } else if (!book.getSite().equals(site)){
+            isIdIncremented = false;
             book.update(description, site);
-        }
+        } else
+            return null;
         List<String> reviews = new ArrayList<>();
         links = html.select("span[itemprop=reviewBody]");
         for (Element element : links) {
@@ -159,10 +160,13 @@ public class Parser {
         Book book = files.getOrDefault(name + author, new Book(globalId, name, author, description, site));
         if (book.getId() == globalId) {
             globalId++;
+            isIdIncremented = true;
             files.put(name + author, book);
-        } else {
+        } else if (!book.getSite().equals(site)){
+            isIdIncremented = false;
             book.update(description, site);
-        }
+        } else
+            return null;
         List<String> reviews = new ArrayList<>();
         links = html.select("div.comment-text");
         for (Element element : links) {
@@ -193,10 +197,13 @@ public class Parser {
         Book book = files.getOrDefault(name + author, new Book(globalId, name, author, description, site));
         if (book.getId() == globalId) {
             globalId++;
+            isIdIncremented = true;
             files.put(name + author, book);
-        } else {
+        } else if (!book.getSite().equals(site)){
+            isIdIncremented = false;
             book.update(description, site);
-        }
+        } else
+            return null;
         List<String> reviews = new ArrayList<>();
         links = html.select("div.comment-content-expander-inner");
         for (Element element : links) {
@@ -231,10 +238,13 @@ public class Parser {
         Book book = files.getOrDefault(name + author, new Book(globalId, name, author, description, site));
         if (book.getId() == globalId) {
             globalId++;
+            isIdIncremented = true;
             files.put(name + author, book);
-        } else {
+        } else if (!book.getSite().equals(site)){
+            isIdIncremented = false;
             book.update(description, site);
-        }
+        } else
+            return null;
         List<String> reviews = new ArrayList<>();
         links = html.select("p[itemprop=reviewBody]");
         for (Element element : links) {
@@ -259,12 +269,14 @@ public class Parser {
 
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
-        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage");
+        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage/test");
         Parser parser = new Parser(pageStoragePath);
         DBHandler dbHandler = new DBHandler();
         Indexer indexer = new Indexer();
         while (!parser.done()) {
             StructuredData nextData = parser.nextStructuredData();
+            if (nextData == null)
+                continue;
             int id = nextData.book.getId();
             if (id == parser.globalId - 1) {
                 dbHandler.addBook(nextData.book);
@@ -276,7 +288,7 @@ public class Parser {
             content += nextData.reviews.stream().collect(Collectors.joining("\n"));
             indexer.addToIndex(content, id);
         }
-        indexer.storeMapToFile(Paths.get(path + "/build/resources/main/indexMap.txt"));
-        indexer.storeWordsOffsetsToFile(Paths.get(path + "/build/resources/main/indexOffsets.txt"));
+        indexer.storeMapToFile(Paths.get(path + "/build/resources/main/indexMap"));
+        indexer.storeWordsOffsetsToFile(Paths.get(path + "/build/resources/main/indexOffsets"));
     }
 }
