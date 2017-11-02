@@ -24,6 +24,10 @@ public class Book {
         sites.add(site);
     }
 
+    public String getLastDescription() {
+        return descriptions.get(descriptions.size() - 1);
+    }
+
     public int getId() {
         return id;
     }

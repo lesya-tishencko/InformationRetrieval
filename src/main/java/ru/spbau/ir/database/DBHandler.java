@@ -69,11 +69,12 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Book's record added successfully");
         return true;
     }
 
     public boolean addReviews(int bookId, List<String> reviews) {
+        if (reviews.size() == 0)
+            return false;
         Connection connection = null;
         Statement statement = null;
         try {
@@ -97,7 +98,6 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Review's records added successfully");
         return true;
     }
 
@@ -126,7 +126,6 @@ public class DBHandler {
             exception.printStackTrace();
             return false;
         }
-        System.out.println("Book with id " + Integer.toString(book.getId()) + " updated successfully");
         return true;
     }
 }
