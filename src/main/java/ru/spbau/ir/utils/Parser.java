@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.spbau.ir.database.DBHandler;
+import ru.spbau.ir.indexer.Indexer;
 
 import java.io.IOException;
 import java.nio.file.Files;
