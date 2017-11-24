@@ -10,11 +10,11 @@ import java.util.List;
 public class DBHandler {
     private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
-    private final String password = "1234509876";
+    private final String password = "RedDress2";
 
     public DBHandler() {
-        Connection connection = null;
-        Statement statement = null;
+        Connection connection;
+        Statement statement;
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -40,9 +40,9 @@ public class DBHandler {
         System.out.println("Tables created successfully");
     }
 
-    public boolean addBook(Book book) {
-        Connection connection = null;
-        Statement statement = null;
+    public void addBook(Book book) {
+        Connection connection;
+        Statement statement;
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(connectionString, user, password);
@@ -67,16 +67,15 @@ public class DBHandler {
             connection.close();
         } catch (Exception exception) {
             exception.printStackTrace();
-            return false;
+            return;
         }
-        return true;
     }
 
-    public boolean addReviews(int bookId, List<String> reviews) {
+    public void addReviews(int bookId, List<String> reviews) {
         if (reviews.size() == 0)
-            return false;
-        Connection connection = null;
-        Statement statement = null;
+            return;
+        Connection connection;
+        Statement statement;
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(connectionString, user, password);
@@ -96,14 +95,13 @@ public class DBHandler {
             connection.close();
         } catch (Exception exception) {
             exception.printStackTrace();
-            return false;
+            return;
         }
-        return true;
     }
 
-    public boolean updateBook(Book book) {
-        Connection connection = null;
-        Statement statement = null;
+    public void updateBook(Book book) {
+        Connection connection;
+        Statement statement;
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(connectionString, user, password);
@@ -124,8 +122,7 @@ public class DBHandler {
             connection.close();
         } catch (Exception exception) {
             exception.printStackTrace();
-            return false;
+            return;
         }
-        return true;
     }
 }
