@@ -2,14 +2,7 @@ package ru.spbau.ir.indexer;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ru.RussianAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
+import ru.spbau.ir.utils.Preprocessor;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -22,11 +15,11 @@ import java.util.PriorityQueue;
 
 public class Indexer {
 
-    private HashMap<String, PriorityQueue<DocumentBlock>> map = new HashMap<>();
+    private final HashMap<String, PriorityQueue<DocumentBlock>> map = new HashMap<>();
     private HashMap<String, FileOffsets> wordsOffsets;
     private File mapFile;
     private File offsetsFile;
-    private SnowballStemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.RUSSIAN);
+    private Preprocessor preprocessor = new Preprocessor();
 
     public void addToIndex(String text, int id) {
         HashMap<String, DocumentBlock> textHashMap = getMapFromText(text, id);
@@ -43,13 +36,13 @@ public class Indexer {
 
     private HashMap<String, DocumentBlock> getMapFromText(String text, int id) {
         text = text.toLowerCase();
-        text = removePunctuation(text);
-        text = removeStopWords(text);
+        text = preprocessor.removePunctuation(text);
+        text = preprocessor.removeStopWords(text);
 
         List<String> words = Arrays.asList(text.split(" "));
         for (int i = 0; i < words.size(); ++i) {
             String word = words.get(i);
-            words.set(i, stemmer.stem(word).toString());
+            words.set(i, preprocessor.stammer(word));
         }
         HashMap<String, DocumentBlock> textHashMap = new HashMap<>();
 
@@ -66,39 +59,6 @@ public class Indexer {
             textHashMap.put(currentWord, documentBlock);
         }
         return textHashMap;
-    }
-
-    private String removePunctuation(String text) {
-        StringBuilder result = new StringBuilder(text.length());
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (Character.isAlphabetic(c) || Character.isDigit(c) || Character.isSpaceChar(c)) {
-                result.append(c);
-            }
-        }
-        return result.toString();
-    }
-
-    private String removeStopWords(String text) {
-        CharArraySet stopWords = RussianAnalyzer.getDefaultStopSet();
-        TokenStream tokenStream = new StandardAnalyzer().tokenStream("", new StringReader(text));
-        tokenStream = new StopFilter(tokenStream, stopWords);
-        StringBuilder stringBuilder = new StringBuilder();
-        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-        try {
-            tokenStream.reset();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            while (tokenStream.incrementToken()) {
-                String term = charTermAttribute.toString();
-                stringBuilder.append(term + " ");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stringBuilder.toString();
     }
 
     public void storeMapToFile(Path pathToFile) {
@@ -159,7 +119,7 @@ public class Indexer {
         }
     }
 
-    public HashMap<String, FileOffsets> getWordsOffsets() {
+    private HashMap<String, FileOffsets> getWordsOffsets() {
         if (wordsOffsets == null) {
             try (FileInputStream fileInputStream = new FileInputStream(offsetsFile);
                  ObjectInputStream inputStream = new ObjectInputStream(fileInputStream)) {
