@@ -4,7 +4,9 @@ import ru.spbau.ir.utils.Book;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DBHandler {
@@ -127,5 +129,31 @@ public class DBHandler {
             return false;
         }
         return true;
+    }
+
+    public List<Double> getBooksReviewsSentimScores(int bookId) {
+        Connection connection = null;
+        Statement statement = null;
+        List<Double> scoresNumbers = new ArrayList<>();
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(connectionString, user, password);
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+
+            String sql = "SELECT score FROM reviews WHERE book_id = " + bookId + ";";
+            ResultSet scores = statement.executeQuery(sql);
+            while (scores.next()) {
+                scoresNumbers.add(scores.getDouble("score"));
+            }
+            scores.close();
+            statement.close();
+            connection.commit();
+            connection.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+        return scoresNumbers;
     }
 }
