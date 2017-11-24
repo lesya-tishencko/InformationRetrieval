@@ -13,11 +13,11 @@ public class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
         this.id = id;
     }
 
-    int getId() {
+    public int getId() {
         return id;
     }
 
-    int getFrequency() {
+    public int getFrequency() {
         return frequency;
     }
 

@@ -18,39 +18,62 @@ public class Searcher {
 
     public Searcher(Indexer indexer, DBHandler dbHandler) {
         this.indexer = indexer;
-        this.N = N;
     }
 
     public PriorityQueue<BM25Ranker> searchByPlot(String query) {
         List<String> tokens = preprocessor.handleText(query);
-        Map<String, PriorityQueue<DocumentBlock>> matrix = new HashMap<>();
-        Set<DocumentBlock> pull = new HashSet<>();
+        List<PriorityQueue<DocumentBlock>> matrix = new ArrayList<>();
+        Set<Integer> pull = new HashSet<>();
         List<Double> idf = new ArrayList<>();
         for (String word : tokens) {
             PriorityQueue<DocumentBlock> queue = indexer.getWordQueue(word);
-            pull.addAll(queue);
-            matrix.put(word, queue);
+            queue.stream().forEach(documentBlock -> pull.add(documentBlock.getId()));
+            matrix.add(queue);
             idf.add(Math.log((double)N / queue.size()));
         }
 
+        PriorityQueue<BM25Ranker> rankerPriorityQueue = new PriorityQueue<>();
+        for (Integer idDocument : pull) {
+            double sum = 0.0;
+            for (int i = 0; i < tokens.size(); i++) {
+                double frequency = (double)getFrequency(tokens.get(i), matrix.get(i), idDocument);
+                sum += idf.get(i) * frequency * (k1 + 1) / (frequency + k1 * (1 - b + b * documentsLength.get(idDocument) / averageLength));
+            }
+            rankerPriorityQueue.add(new BM25Ranker(idDocument, sum));
+        }
 
+        PriorityQueue<BM25Ranker> result = new PriorityQueue<>();
+        for (int i = 0; i < 100; i++) {
+            result.add(rankerPriorityQueue.poll());
+        }
+        return result;
     }
 
-    private double getFrequency(String token, PriorityQueue<DocumentBlock> queue, DocumentBlock documentBlock) {
-
+    private Integer getFrequency(String token, PriorityQueue<DocumentBlock> queue, Integer id) {
+        Map<Integer, Integer> frequency = new HashMap<>();
+        queue.stream().forEach(documentBlock -> frequency.put(documentBlock.getId(), documentBlock.getFrequency()));
+        if (!frequency.containsKey(id)) {
+            return 0;
+        }
+        return frequency.get(id);
     }
 
     public PriorityQueue<DocumentBlock> getSimilar(int id) {
-
+        return null;
     }
 
-    public class BM25Ranker {
+    public class BM25Ranker implements Comparable<BM25Ranker> {
         int idDocument;
         double rank;
 
         BM25Ranker(int id, double rank) {
             idDocument = id;
             this.rank = rank;
+        }
+
+        @Override
+        public int compareTo(BM25Ranker o) {
+            return Double.compare(rank, o.rank);
         }
     }
 }
