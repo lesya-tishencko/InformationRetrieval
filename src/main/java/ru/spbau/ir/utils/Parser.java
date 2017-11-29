@@ -6,9 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.spbau.ir.database.DBHandler;
 import ru.spbau.ir.indexer.Indexer;
-import ru.spbau.ir.indexer.DocumentBlock;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,30 +15,58 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Parser {
+    private final Map<String, Book> files = new HashMap<>();
+    private final Queue<Path> pathQueue = new LinkedList<>();
     private int globalId = 1;
     private boolean isIdIncremented = false;
-    private final Map<String, Book> files = new HashMap<>();
-    private final Queue<Document> fileQueue = new LinkedList<>();
 
-    public Parser(Path mainPath) {
+    private Parser(Path mainPath) {
         try {
             Path path = Paths.get(mainPath.toFile().getAbsolutePath());
-            List<Path> pathes = Files.walk(path).collect(Collectors.toList());
-            List<File> files = pathes.stream().filter(Files::isRegularFile).map(Path::toFile).collect(Collectors.toList());
-            for (File file: files) {
-                fileQueue.add(Jsoup.parse(file, "utf-16"));
-            }
+            List<Path> paths = Files.walk(path).collect(Collectors.toList());
+            paths.stream().filter(Files::isRegularFile).forEach(path_ -> pathQueue.add(path_));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
 
-    public StructuredData nextStructuredData() {
-        return parse(fileQueue.remove());
+    public static void main(String[] args) {
+        String path = System.getProperty("user.dir");
+        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage");
+        Parser parser = new Parser(pageStoragePath);
+        DBHandler dbHandler = new DBHandler();
+        Indexer indexer = new Indexer();
+        while (!parser.done()) {
+            StructuredData nextData = parser.nextStructuredData();
+            if (nextData == null)
+                continue;
+            int id = nextData.book.getId();
+            if (parser.isIdIncremented) {
+                dbHandler.addBook(nextData.book);
+            } else {
+                dbHandler.updateBook(nextData.book);
+            }
+            dbHandler.addReviews(id, nextData.reviews);
+            String content = nextData.book.getLastDescription();
+            content += nextData.reviews.stream().collect(Collectors.joining("\n"));
+            indexer.addToIndex(content, id);
+        }
+        indexer.storeMapToFile(Paths.get(path + "/src/main/resources/Maps/indexMap"));
+        indexer.storeWordsOffsetsToFile(Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
     }
 
-    public boolean done() {
-        return fileQueue.isEmpty();
+    private StructuredData nextStructuredData() {
+        Path path = pathQueue.remove();
+        try {
+            return parse(Jsoup.parse(path.toFile(), "utf-16"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private boolean done() {
+        return pathQueue.isEmpty();
     }
 
     private StructuredData parse(Document html) {
@@ -266,30 +292,5 @@ public class Parser {
             this.book = book;
             this.reviews = reviews;
         }
-    }
-
-    public static void main(String[] args) {
-        String path = System.getProperty("user.dir");
-        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage/test");
-        Parser parser = new Parser(pageStoragePath);
-        DBHandler dbHandler = new DBHandler();
-        Indexer indexer = new Indexer();
-        while (!parser.done()) {
-            StructuredData nextData = parser.nextStructuredData();
-            if (nextData == null)
-                continue;
-            int id = nextData.book.getId();
-            if (parser.isIdIncremented) {
-                dbHandler.addBook(nextData.book);
-            } else {
-                dbHandler.updateBook(nextData.book);
-            }
-            dbHandler.addReviews(id, nextData.reviews);
-            String content = nextData.book.getLastDescription();
-            content += nextData.reviews.stream().collect(Collectors.joining("\n"));
-            indexer.addToIndex(content, id);
-        }
-        indexer.storeMapToFile(Paths.get(path + "/src/main/resources/Maps/indexMap"));
-        indexer.storeWordsOffsetsToFile(Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
     }
 }
