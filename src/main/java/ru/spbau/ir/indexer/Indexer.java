@@ -21,6 +21,11 @@ public class Indexer {
     private File offsetsFile;
     private Preprocessor preprocessor = new Preprocessor();
 
+    public Indexer(Path mapFilePath, Path offsetsFilePath) {
+        mapFile = mapFilePath.toFile();
+        offsetsFile = offsetsFilePath.toFile();
+    }
+
     public void addToIndex(String text, int id) {
         HashMap<String, DocumentBlock> textHashMap = getMapFromText(text, id);
         textHashMap.forEach((word, documentBlock) -> {
@@ -61,21 +66,20 @@ public class Indexer {
         return textHashMap;
     }
 
-    public void storeMapToFile(Path pathToFile) {
+    public void storeMapToFile() {
         Gson gson = new Gson();
-        File file = new File(pathToFile.toFile().getAbsolutePath());
-        if (!file.exists()) {
+        if (!mapFile.exists()) {
             try {
-                file.createNewFile();
+                mapFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        mapFile = file;
+        mapFile = mapFile;
 
         HashMap<String, FileOffsets> offsets = new HashMap<>();
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(mapFile, true);
              DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
              ObjectOutputStream outputStream = new ObjectOutputStream(dataOutputStream)) {
             map.forEach((word, documentBlocks) -> {
@@ -98,18 +102,15 @@ public class Indexer {
         this.wordsOffsets = offsets;
     }
 
-    public void storeWordsOffsetsToFile(Path pathToFile) {
-        File file = new File(pathToFile.toFile().getAbsolutePath());
-        if (!file.exists()) {
+    public void storeWordsOffsetsToFile() {
+        if (!offsetsFile.exists()) {
             try {
-                file.createNewFile();
+                offsetsFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        offsetsFile = file;
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(offsetsFile);
              ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream)) {
             outputStream.writeObject(wordsOffsets);
             outputStream.flush();

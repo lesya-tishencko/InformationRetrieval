@@ -5,19 +5,21 @@ import ru.spbau.ir.indexer.DocumentBlock;
 import ru.spbau.ir.indexer.Indexer;
 import ru.spbau.ir.utils.Preprocessor;
 
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Searcher {
     private final Preprocessor preprocessor = new Preprocessor();
-    private final Indexer indexer;
-    private final int N;
-    private final Map<Integer, Double> documentsLength;
-    private final double averageLength;
+    private final Indexer indexer = new Indexer(Paths.get(System.getProperty("user.dir") +
+            "/src/main/resources/Maps/indexMap"),
+            Paths.get(System.getProperty("user.dir") + "/src/main/resources/Maps/indexOffsets"));
+    private final int N = 0;
+    private final Map<Integer, Double> documentsLength = new HashMap<>();
+    private final double averageLength = 0;
     private final double k1 = 2.0;
     private final double b = 0.75;
 
-    public Searcher(Indexer indexer, DBHandler dbHandler) {
-        this.indexer = indexer;
+    public Searcher(DBHandler dbHandler) {
     }
 
     public PriorityQueue<BM25Ranker> searchByPlot(String query) {
