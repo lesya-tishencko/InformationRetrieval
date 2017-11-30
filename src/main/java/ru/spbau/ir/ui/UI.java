@@ -1,6 +1,7 @@
 package ru.spbau.ir.ui;
 
 import ru.spbau.ir.database.DBHandler;
+import ru.spbau.ir.indexer.DocumentBlock;
 import ru.spbau.ir.indexer.Indexer;
 import ru.spbau.ir.searcher.Searcher;
 import ru.spbau.ir.utils.Book;
@@ -50,7 +51,7 @@ public class UI {
             int bookNo = 0;
             while (!list.isEmpty()) {
                 Searcher.BM25Ranker bookId = list.poll();
-                Book book = dbHandler.getBook(bookId);
+                Book book = dbHandler.getBook(bookId.getDocumentId());
                 JButton bookButton = new JButton(book.getAuthor() + " " + "\"" + book.getName() + "\"");
                 bookButton.setBounds(
                         horMargin,
@@ -61,7 +62,19 @@ public class UI {
                 bookButton.addActionListener(actionEvent1 -> {
                     JFrame bookFrame = new JFrame("Book information");
                     jframe.setLayout(null);
-
+                    JLabel author = new JLabel(book.getAuthor());
+                    JLabel name = new JLabel(book.getName());
+                    JLabel description = new JLabel(book.getDescription());
+                    author.setBounds(0, 0, 200, 100);
+                    name.setBounds(0, 100, 200, 100);
+                    description.setBounds(0, 200, 200, 100);
+                    bookFrame.add(author);
+                    bookFrame.add(name);
+                    bookFrame.add(description);
+                    PriorityQueue<DocumentBlock> docsList = searcher.getSimilar(bookId.getDocumentId());
+                    while(!docsList.isEmpty()) {
+                        DocumentBlock doc =
+                    }
                 });
                 bookNo++;
             }
