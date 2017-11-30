@@ -18,8 +18,9 @@ public class Searcher {
     private final double averageLength;
     private final double k1 = 2.0;
     private final double b = 0.75;
+    private final DBHandler dbHandler = new DBHandler();
 
-    public Searcher(DBHandler dbHandler) {
+    public Searcher() {
         documentsLength = dbHandler.getDocumentsLength();
         N = documentsLength.size();
         averageLength = documentsLength.values().stream().reduce(0, (acc, next) -> acc + next) / N;
@@ -63,8 +64,9 @@ public class Searcher {
         return frequency.get(id);
     }
 
-    public PriorityQueue<DocumentBlock> getSimilar(int id) {
-        return null;
+    public PriorityQueue<BM25Ranker> getSimilar(int id) {
+        String annotations = dbHandler.getDescription(id);
+        return searchByPlot(annotations);
     }
 
     public class BM25Ranker implements Comparable<BM25Ranker> {

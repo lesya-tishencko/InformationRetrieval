@@ -218,4 +218,30 @@ public class DBHandler {
         }
         return book;
     }
+
+    public String getDescription(int bookId) {
+        Connection connection = null;
+        Statement statement = null;
+        String description = "";
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(connectionString, user, password);
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+
+            String sql = "SELECT description FROM books WHERE id = " + bookId + ";";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                description = resultSet.getString(0);
+            }
+            resultSet.close();
+            statement.close();
+            connection.commit();
+            connection.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+        return description;
+    }
 }

@@ -8,6 +8,7 @@ import java.util.PriorityQueue;
 
 public class RankerByScore {
     private DBHandler dbHandler;
+
     public RankerByScore(DBHandler dbHandler) {
         this.dbHandler = dbHandler;
     }
