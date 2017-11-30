@@ -7,7 +7,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DBHandler {
     private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
@@ -24,15 +26,17 @@ public class DBHandler {
             statement = connection.createStatement();
             String sql = "CREATE TABLE books (" +
                         "id int PRIMARY KEY, " +
-                        "getName text NOT NULL, " +
-                        "getAuthor text NOT NULL, " +
-                        "getDescription text, " +
-                        "getSite text NOT NULL)";
+                        "name text NOT NULL, " +
+                        "author text NOT NULL, " +
+                        "description text, " +
+                        "site text NOT NULL, " +
+                        "length int)";
             statement.executeUpdate(sql);
             sql = "CREATE TABLE reviews (" +
                     "id SERIAL PRIMARY KEY, " +
                     "book_id int REFERENCES books, " +
-                    "review text)";
+                    "review text, " +
+                    "score real)";
             statement.executeUpdate(sql);
             statement.close();
             connection.close();
@@ -42,7 +46,7 @@ public class DBHandler {
         System.out.println("Tables created successfully");
     }
 
-    public void addBook(Book book) {
+    public void addBook(Book book, int length) {
         Connection connection;
         Statement statement;
         try {
@@ -61,7 +65,8 @@ public class DBHandler {
                     "'" + name + "', " +
                     "E'" + author + "', " +
                     "E'" + description + "', " +
-                    "E'" + site + "');";
+                    "E'" + site + "', " +
+                    description.length() + length + "');";
 
             statement.executeUpdate(sql);
             statement.close();
@@ -101,7 +106,7 @@ public class DBHandler {
         }
     }
 
-    public void updateBook(Book book) {
+    public void updateBook(Book book, int length) {
         Connection connection;
         Statement statement;
         try {
@@ -113,9 +118,16 @@ public class DBHandler {
             String id = Integer.toString(book.getId());
             String description = book.getDescription();
             String site = book.getSite();
-            String sql = "UPDATE books SET " +
-                    "getDescription = " + "E'" + description + "', " +
-                    "getSite = " + "E'" + site + "' where " +
+            String sql = "SELECT length FROM books where id = " + id + ";";
+            ResultSet resultSet = statement.executeQuery(sql);
+            int prevLength = 0;
+            while (resultSet.next()) {
+                prevLength = resultSet.getInt(0);
+            }
+
+            sql = "UPDATE books SET " +
+                    "description = " + "E'" + description + "', " +
+                    "site = " + "E'" + site + "', " + "length = " + prevLength + length + "' where " +
                     "id = " + id + ";";
 
             statement.executeUpdate(sql);
@@ -126,6 +138,29 @@ public class DBHandler {
             exception.printStackTrace();
             return;
         }
+    }
+
+    public Map<Integer, Integer> getDocumentsLength() {
+        Connection connection;
+        Statement statement;
+        Map<Integer, Integer> result = new HashMap<>();
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(connectionString, user, password);
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+            String sql = "SELECT id, length FROM books;";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                result.put(resultSet.getInt(0), resultSet.getInt(1));
+            }
+            statement.close();
+            connection.commit();
+            connection.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return result;
     }
 
     public List<Double> getBooksReviewsSentimScores(int bookId) {

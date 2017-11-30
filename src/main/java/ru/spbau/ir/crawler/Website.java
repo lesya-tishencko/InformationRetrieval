@@ -113,7 +113,7 @@ class Website {
             innerDocument = Jsoup.connect(url.toString())
                     .userAgent(userAgent)
                     .get();
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
             ignored.printStackTrace();
         }
         return new Document(innerDocument);

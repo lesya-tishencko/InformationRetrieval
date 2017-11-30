@@ -43,7 +43,7 @@ public class Preprocessor {
     }
 
     public String removeStopWords(String text) {
-        CharArraySet stopWords = RussianAnalyzer.getDefaultStopSet();
+        /*CharArraySet stopWords = RussianAnalyzer.getDefaultStopSet();
         TokenStream tokenStream = new StandardAnalyzer().tokenStream("", new StringReader(text));
         tokenStream = new StopFilter(tokenStream, stopWords);
         StringBuilder stringBuilder = new StringBuilder();
@@ -61,7 +61,8 @@ public class Preprocessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString();*/
+        return null;
     }
 
     public String stammer(String word) {
