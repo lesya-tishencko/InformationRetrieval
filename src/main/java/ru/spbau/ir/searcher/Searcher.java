@@ -18,10 +18,9 @@ public class Searcher {
     private final double averageLength;
     private final double k1 = 2.0;
     private final double b = 0.75;
-    private final DBHandler dbHandler;
+    private final DBHandler dbHandler = new DBHandler();
 
-    public Searcher(DBHandler dbHandler) {
-        this.dbHandler = dbHandler;
+    public Searcher() {
         documentsLength = dbHandler.getDocumentsLength();
         N = documentsLength.size();
         averageLength = documentsLength.values().stream().reduce(0, (acc, next) -> acc + next) / N;
