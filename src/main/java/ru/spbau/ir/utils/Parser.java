@@ -41,10 +41,11 @@ public class Parser {
             if (nextData == null)
                 continue;
             int id = nextData.book.getId();
+            int length = nextData.reviews.stream().mapToInt(String::length).sum();
             if (parser.isIdIncremented) {
-                dbHandler.addBook(nextData.book);
+                dbHandler.addBook(nextData.book, length);
             } else {
-                dbHandler.updateBook(nextData.book);
+                dbHandler.updateBook(nextData.book, length);
             }
             dbHandler.addReviews(id, nextData.reviews);
             String content = nextData.book.getLastDescription();

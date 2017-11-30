@@ -12,7 +12,7 @@ public class Crawler {
     private final Set<URL> seen = new HashSet<>();
     private final Path pathForStoring;
     private final Frontier frontier;
-    private final AtomicInteger docsCounter = new AtomicInteger(35935);
+    private final AtomicInteger docsCounter = new AtomicInteger(0);
 
     private Crawler(Path forStoring, Path handledURLs, Path mainUrls) {
         pathForStoring = forStoring;
@@ -35,9 +35,9 @@ public class Crawler {
 
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
-        Path mainPath = Paths.get(path + "/build/resources/main/mainUrls.txt");
-        Path handledUrlsPath = Paths.get(path + "/build/resources/main/handledUrls.txt");
-        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage");
+        Path mainPath = Paths.get(path + "/out/production/resources/mainUrls.txt");
+        Path handledUrlsPath = Paths.get(path + "/out/production/resources/handledUrls.txt");
+        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage/samolit");
         new Crawler(pageStoragePath, handledUrlsPath, mainPath);
 
         /* for Linux

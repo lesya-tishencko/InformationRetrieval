@@ -9,18 +9,21 @@ import java.util.*;
 
 public class Searcher {
     private final Preprocessor preprocessor = new Preprocessor();
-    private final Indexer indexer;
+    private final Indexer indexer = new Indexer();
     private final int N;
-    private final Map<Integer, Double> documentsLength;
+    private Map<Integer, Integer> documentsLength;
     private final double averageLength;
     private final double k1 = 2.0;
     private final double b = 0.75;
 
-    public Searcher(Indexer indexer, DBHandler dbHandler) {
-        this.indexer = indexer;
+    public Searcher(DBHandler dbHandler) {
+        documentsLength = dbHandler.getDocumentsLength();
+        N = documentsLength.size();
+        averageLength = documentsLength.values().stream().reduce(0, (acc, next) -> acc + next) / N;
     }
 
     public PriorityQueue<BM25Ranker> searchByPlot(String query) {
+        /* оффсеты */
         List<String> tokens = preprocessor.handleText(query);
         List<PriorityQueue<DocumentBlock>> matrix = new ArrayList<>();
         Set<Integer> pull = new HashSet<>();
@@ -73,7 +76,7 @@ public class Searcher {
 
         @Override
         public int compareTo(BM25Ranker o) {
-            return Double.compare(rank, o.rank);
+            return -1 * Double.compare(rank, o.rank);
         }
     }
 }
