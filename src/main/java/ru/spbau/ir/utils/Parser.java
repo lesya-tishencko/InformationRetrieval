@@ -35,7 +35,8 @@ public class Parser {
         Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage");
         Parser parser = new Parser(pageStoragePath);
         DBHandler dbHandler = new DBHandler();
-        Indexer indexer = new Indexer();
+        Indexer indexer = new Indexer(Paths.get(path + "/src/main/resources/Maps/indexMap"),
+                Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
         while (!parser.done()) {
             StructuredData nextData = parser.nextStructuredData();
             if (nextData == null)
@@ -52,8 +53,8 @@ public class Parser {
             content += nextData.reviews.stream().collect(Collectors.joining("\n"));
             indexer.addToIndex(content, id);
         }
-        indexer.storeMapToFile(Paths.get(path + "/src/main/resources/Maps/indexMap"));
-        indexer.storeWordsOffsetsToFile(Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
+        indexer.storeMapToFile();
+        indexer.storeWordsOffsetsToFile();
     }
 
     private StructuredData nextStructuredData() {

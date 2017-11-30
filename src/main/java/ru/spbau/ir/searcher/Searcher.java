@@ -26,7 +26,6 @@ public class Searcher {
     }
 
     public PriorityQueue<BM25Ranker> searchByPlot(String query) {
-        /* оффсеты */
         List<String> tokens = preprocessor.handleText(query);
         List<PriorityQueue<DocumentBlock>> matrix = new ArrayList<>();
         Set<Integer> pull = new HashSet<>();
