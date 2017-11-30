@@ -124,6 +124,7 @@ public class DBHandler {
             while (resultSet.next()) {
                 prevLength = resultSet.getInt(0);
             }
+            resultSet.close();
 
             sql = "UPDATE books SET " +
                     "description = " + "E'" + description + "', " +
@@ -154,6 +155,7 @@ public class DBHandler {
             while (resultSet.next()) {
                 result.put(resultSet.getInt(0), resultSet.getInt(1));
             }
+            resultSet.close();
             statement.close();
             connection.commit();
             connection.close();
@@ -187,5 +189,33 @@ public class DBHandler {
             return null;
         }
         return scoresNumbers;
+    }
+
+    public Book getBook(int bookId) {
+        Connection connection = null;
+        Statement statement = null;
+        Book book = null;
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(connectionString, user, password);
+            connection.setAutoCommit(false);
+            statement = connection.createStatement();
+
+            String sql = "SELECT * FROM books WHERE id = " + bookId + ";";
+            ResultSet resultSet = statement.executeQuery(sql);
+            while (resultSet.next()) {
+                book = new Book(resultSet.getInt(0), resultSet.getString(1),
+                                resultSet.getString(2), resultSet.getString(3),
+                                resultSet.getString(4));
+            }
+            resultSet.close();
+            statement.close();
+            connection.commit();
+            connection.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
+        return book;
     }
 }
