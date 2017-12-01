@@ -34,18 +34,18 @@ public class Crawler {
     }
 
     public static void main(String[] args) {
-//        String path = System.getProperty("user.dir");
-//        Path mainPath = Paths.get(path + "/src/main/java/ru/spbau/resources/main/mainUrls.txt");
-//        Path handledUrlsPath = Paths.get(path + "/build/resources/main/handledUrls.txt");
-//        Path pageStoragePath = Paths.get(path + "/build/resources/main/pageStorage");
-//        new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+        String path = System.getProperty("user.dir");
+        Path mainPath = Paths.get(path + "/out/production/resources/mainUrls.txt");
+        Path handledUrlsPath = Paths.get(path + "/out/production/resources/handledUrls.txt");
+        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage/mybookreal");
+        new Crawler(pageStoragePath, handledUrlsPath, mainPath);
 
         // for Linux
-        ClassLoader loader = ClassLoader.getSystemClassLoader();
-        Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
-        Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
-        Path pageStoragePath = Paths.get("/media/angelika/8292BD7F92BD786D/pageStorageMyBook");
-        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
+//        ClassLoader loader = ClassLoader.getSystemClassLoader();
+//        Path mainPath = Paths.get(loader.getResource("mainUrls.txt").getPath());
+//        Path handledUrlsPath = Paths.get(loader.getResource("handledUrls.txt").getPath());
+//        Path pageStoragePath = Paths.get("/media/angelika/8292BD7F92BD786D/pageStorageMyBook");
+//        Crawler crawler = new Crawler(pageStoragePath, handledUrlsPath, mainPath);
     }
 
     private void crawlerThread() {
