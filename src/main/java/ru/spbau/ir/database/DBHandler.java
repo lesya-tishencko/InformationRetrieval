@@ -91,9 +91,9 @@ public class DBHandler {
             statement = connection.createStatement();
 
             for (String review : reviews) {
-                String sql = "INSERT INTO reviews (book_id, review) VALUES (" +
+                String sql = "INSERT INTO reviews (book_id, review, score) VALUES (" +
                         Integer.toString(bookId) + ", " +
-                        "E'" + review + "');";
+                        "E'" + review + "', " + 0 + ");";
 
                 statement.executeUpdate(sql);
             }
