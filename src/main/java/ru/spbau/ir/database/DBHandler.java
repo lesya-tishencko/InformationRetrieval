@@ -14,7 +14,7 @@ import java.util.Map;
 public class DBHandler {
     private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
-    private final String password = "RedDress2";
+    private final String password = "1234509876";
 
     public DBHandler() {
         Connection connection;
@@ -66,7 +66,7 @@ public class DBHandler {
                     "E'" + author + "', " +
                     "E'" + description + "', " +
                     "E'" + site + "', " +
-                    description.length() + length + "');";
+                    description.length() + length + ");";
 
             statement.executeUpdate(sql);
             statement.close();

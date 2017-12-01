@@ -49,7 +49,7 @@ public class UI {
                 searchButtonHeight);
         jbutton.addActionListener(actionEvent -> {
             String queryText = query.getText();
-            Searcher searcher = new Searcher(dbHandler);
+            Searcher searcher = new Searcher();
             PriorityQueue<Searcher.BM25Ranker> list = searcher.searchByPlot(queryText);
             int bookNo = 0;
             while (!list.isEmpty()) {
