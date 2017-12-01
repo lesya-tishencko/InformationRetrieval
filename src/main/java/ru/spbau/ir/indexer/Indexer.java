@@ -75,8 +75,6 @@ public class Indexer {
                 e.printStackTrace();
             }
         }
-        mapFile = mapFile;
-
         HashMap<String, FileOffsets> offsets = new HashMap<>();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(mapFile, true);

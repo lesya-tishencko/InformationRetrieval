@@ -49,7 +49,7 @@ public class Searcher {
         }
 
         PriorityQueue<BM25Ranker> result = new PriorityQueue<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < Math.min(100, rankerPriorityQueue.size()); i++) {
             result.add(rankerPriorityQueue.poll());
         }
         return result;
