@@ -7,16 +7,16 @@ import java.util.OptionalDouble;
 import java.util.PriorityQueue;
 
 public class RankerByScore {
-    DBHandler dbHandler;
+    private DBHandler dbHandler;
+
     public RankerByScore(DBHandler dbHandler) {
         this.dbHandler = dbHandler;
     }
 
-    List<Integer> rankByScore(PriorityQueue<Searcher.BM25Ranker> docs) {
+    public List<Integer> rankByScore(PriorityQueue<Searcher.BM25Ranker> docs) {
         class IdScore implements Comparable {
             int id;
             double score;
-
             IdScore(int id, double score) {
                 this.id = id;
                 this.score = score;
@@ -47,5 +47,5 @@ public class RankerByScore {
             resultIds.add(scoreQueue.poll().id);
         }
         return resultIds;
-   }
+    }
 }

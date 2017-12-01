@@ -78,6 +78,10 @@ public class Searcher {
             this.rank = rank;
         }
 
+        public int getDocumentId() {
+            return idDocument;
+        }
+
         @Override
         public int compareTo(BM25Ranker o) {
             return -1 * Double.compare(rank, o.rank);
