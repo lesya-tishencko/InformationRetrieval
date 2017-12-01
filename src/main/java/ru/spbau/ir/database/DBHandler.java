@@ -60,13 +60,14 @@ public class DBHandler {
             String author = book.getAuthor();
             String description = book.getDescription();
             String site = book.getSite();
+            length += description.length();
             String sql = "INSERT INTO books VALUES (" +
                     id + ", " +
                     "'" + name + "', " +
                     "E'" + author + "', " +
                     "E'" + description + "', " +
                     "E'" + site + "', " +
-                    description.length() + length + ");";
+                     length + ");";
 
             statement.executeUpdate(sql);
             statement.close();
@@ -120,15 +121,14 @@ public class DBHandler {
             String site = book.getSite();
             String sql = "SELECT length FROM books where id = " + id + ";";
             ResultSet resultSet = statement.executeQuery(sql);
-            int prevLength = 0;
+            int prevLength = length;
             while (resultSet.next()) {
-                prevLength = resultSet.getInt(0);
+                prevLength += resultSet.getInt(0);
             }
             resultSet.close();
-
             sql = "UPDATE books SET " +
                     "description = " + "E'" + description + "', " +
-                    "site = " + "E'" + site + "', " + "length = " + prevLength + length + "' where " +
+                    "site = " + "E'" + site + "', " + "length = " + prevLength + " where " +
                     "id = " + id + ";";
 
             statement.executeUpdate(sql);
