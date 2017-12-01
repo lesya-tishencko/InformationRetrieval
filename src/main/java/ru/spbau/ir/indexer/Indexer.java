@@ -2,6 +2,7 @@ package ru.spbau.ir.indexer;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import ru.spbau.ir.crawler.Document;
 import ru.spbau.ir.utils.Preprocessor;
 
 import java.io.*;
@@ -137,7 +138,7 @@ public class Indexer {
         if (wordsOffsets.containsKey(word)) {
             offsets = wordsOffsets.get(word);
         } else {
-            return null;
+            return new PriorityQueue<>();
         }
         byte[] objectBuffer = new byte[offsets.end - offsets.start];
         try (FileInputStream fileInputStream = new FileInputStream(mapFile)) {

@@ -23,7 +23,7 @@ public class UI {
         horMargin = windowWidth / 10;
         verMargin = windowHeight / 20;
 
-        JFrame jframe = new JFrame("Book search");
+        JFrame jframe = new JFrame("Поиск книг");
         jframe.setLayout(null);
         int searchButtonHeight = windowWidth / 25;
         int searchButtonWidth = windowWidth / 10;
@@ -35,7 +35,7 @@ public class UI {
                 searchButtonHeight);
         jframe.add(query);
 
-        JButton jbutton = new JButton("Search");
+        JButton jbutton = new JButton("Поиск");
         int searchButtonX = windowWidth - searchButtonWidth - horMargin;
         int searchButtonY = verMargin;
         jbutton.setBounds(searchButtonX,
@@ -69,17 +69,20 @@ public class UI {
             Searcher.BM25Ranker bookId = list.poll();
             Book book = dbHandler.getBook(bookId.getDocumentId());
             JButton bookButton = new JButton(book.getAuthor() + " " + "\"" + book.getName() + "\"");
-            bookButton.setBounds(
-                    horMargin,
-                    verMargin + searchButtonHeight * bookNo,
-                    windowWidth - 2 * horMargin - searchButtonWidth - 2,
-                    searchButtonHeight
-                    );
             bookButton.addActionListener(actionEvent1 -> {
                 showBookInfo(dbHandler, screen, jframe, searcher, bookId, book);
             });
+            jframe.setLayout(null);
             jframe.add(bookButton);
-            jframe.validate();
+            bookButton.setBounds(
+                    horMargin,
+                    verMargin + searchButtonHeight * (2 + bookNo),
+                    windowWidth - 2 * horMargin - searchButtonWidth - 2,
+                    searchButtonHeight
+            );
+            bookButton.setSize(windowWidth - 2 * horMargin - searchButtonWidth - 2,
+                    searchButtonHeight);
+            jframe.invalidate();
             jframe.repaint();
             bookNo++;
         }
