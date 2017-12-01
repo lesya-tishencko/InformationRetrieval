@@ -35,6 +35,7 @@ public class Parser {
         Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage");
         Parser parser = new Parser(pageStoragePath);
         DBHandler dbHandler = new DBHandler();
+        dbHandler.createDatabase();
         Indexer indexer = new Indexer(Paths.get(path + "/src/main/resources/Maps/indexMap"),
                 Paths.get(path + "/src/main/resources/Maps/indexOffsets"));
         while (!parser.done()) {

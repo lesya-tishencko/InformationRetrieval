@@ -17,33 +17,6 @@ public class DBHandler {
     private final String password = "1234509876";
 
     public DBHandler() {
-        Connection connection;
-        Statement statement;
-
-        try {
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(connectionString, user, password);
-            statement = connection.createStatement();
-            String sql = "CREATE TABLE books (" +
-                        "id int PRIMARY KEY, " +
-                        "name text NOT NULL, " +
-                        "author text NOT NULL, " +
-                        "description text, " +
-                        "site text NOT NULL, " +
-                        "length int)";
-            statement.executeUpdate(sql);
-            sql = "CREATE TABLE reviews (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "book_id int REFERENCES books, " +
-                    "review text, " +
-                    "score real)";
-            statement.executeUpdate(sql);
-            statement.close();
-            connection.close();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        System.out.println("Tables created successfully");
     }
 
     public void addBook(Book book, int length) {
@@ -77,6 +50,36 @@ public class DBHandler {
             exception.printStackTrace();
             return;
         }
+    }
+
+    public void createDatabase() {
+        Connection connection;
+        Statement statement;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(connectionString, user, password);
+            statement = connection.createStatement();
+            String sql = "CREATE TABLE books (" +
+                    "id int PRIMARY KEY, " +
+                    "name text NOT NULL, " +
+                    "author text NOT NULL, " +
+                    "description text, " +
+                    "site text NOT NULL, " +
+                    "length int)";
+            statement.executeUpdate(sql);
+            sql = "CREATE TABLE reviews (" +
+                    "id SERIAL PRIMARY KEY, " +
+                    "book_id int REFERENCES books, " +
+                    "review text, " +
+                    "score real)";
+            statement.executeUpdate(sql);
+            statement.close();
+            connection.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        System.out.println("Tables created successfully");
     }
 
     public void addReviews(int bookId, List<String> reviews) {
