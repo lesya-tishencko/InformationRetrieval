@@ -126,7 +126,7 @@ public class DBHandler {
             ResultSet resultSet = statement.executeQuery(sql);
             int prevLength = length;
             while (resultSet.next()) {
-                prevLength += resultSet.getInt(0);
+                prevLength += resultSet.getInt(1);
             }
             resultSet.close();
             sql = "UPDATE books SET " +
@@ -156,7 +156,7 @@ public class DBHandler {
             String sql = "SELECT id, length FROM books;";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                result.put(resultSet.getInt(0), resultSet.getInt(1));
+                result.put(resultSet.getInt(1), resultSet.getInt(2));
             }
             resultSet.close();
             statement.close();
@@ -207,9 +207,9 @@ public class DBHandler {
             String sql = "SELECT * FROM books WHERE id = " + bookId + ";";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                book = new Book(resultSet.getInt(0), resultSet.getString(1),
-                                resultSet.getString(2), resultSet.getString(3),
-                                resultSet.getString(4));
+                book = new Book(resultSet.getInt(1), resultSet.getString(2),
+                                resultSet.getString(3), resultSet.getString(4),
+                                resultSet.getString(5));
             }
             resultSet.close();
             statement.close();
@@ -235,7 +235,7 @@ public class DBHandler {
             String sql = "SELECT description FROM books WHERE id = " + bookId + ";";
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                description = resultSet.getString(0);
+                description = resultSet.getString(1);
             }
             resultSet.close();
             statement.close();
