@@ -14,7 +14,7 @@ import java.util.Map;
 public class DBHandler {
     private final String connectionString = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
-    private final String password = "1234509876";
+    private final String password = "RedDress2";
 
     public DBHandler() {
     }
@@ -31,7 +31,8 @@ public class DBHandler {
             String id = Integer.toString(book.getId());
             String name = book.getName();
             String author = book.getAuthor();
-            String description = book.getDescription();
+            String description = book.getDescription().replace("'", "");
+            description = description.replace("\"", "\\\"");
             String site = book.getSite();
             length += description.length();
             String sql = "INSERT INTO books VALUES (" +
@@ -94,9 +95,11 @@ public class DBHandler {
             statement = connection.createStatement();
 
             for (String review : reviews) {
+                review = review.replace("'", "");
+                review = review.replace("\"", "\\\"");
                 String sql = "INSERT INTO reviews (book_id, review, score) VALUES (" +
                         Integer.toString(bookId) + ", " +
-                        "E'" + review + "', " + 0 + ");";
+                        "E'" + review + "', " + String.valueOf(0) + ");";
 
                 statement.executeUpdate(sql);
             }
@@ -120,7 +123,8 @@ public class DBHandler {
             statement = connection.createStatement();
 
             String id = Integer.toString(book.getId());
-            String description = book.getDescription();
+            String description = book.getDescription().replace("'", "");
+            description = description.replace("\"", "\\\"");
             String site = book.getSite();
             String sql = "SELECT length FROM books where id = " + id + ";";
             ResultSet resultSet = statement.executeQuery(sql);
