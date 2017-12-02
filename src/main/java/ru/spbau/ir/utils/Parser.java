@@ -141,8 +141,9 @@ public class Parser {
             name = links.first().ownText();
         }
         links = html.select("span[itemprop=author]");
-        if (links.size() > 0) {
-            author = links.first().nextElementSibling().text();
+        if (links.size() > 0 ) {
+            author = links.first().nextElementSibling() != null ? links.first().nextElementSibling().text() :
+                    links.first().children().first().ownText();
         }
         links = html.select("div[itemprop=description]");
         if (links.size() > 0) {

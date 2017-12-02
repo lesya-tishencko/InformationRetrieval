@@ -6,7 +6,6 @@ import java.util.List;
 
 public class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
     private final int id;
-    private final List<Integer> positions = new ArrayList<>();
     private int frequency = 0;
 
     DocumentBlock(int id) {
@@ -27,14 +26,6 @@ public class DocumentBlock implements Comparable<DocumentBlock>, Serializable {
 
     void increaseFrequency() {
         frequency++;
-    }
-
-    List<Integer> getPositions() {
-        return positions;
-    }
-
-    boolean addPosition(int position) {
-        return positions.add(position);
     }
 
     @Override

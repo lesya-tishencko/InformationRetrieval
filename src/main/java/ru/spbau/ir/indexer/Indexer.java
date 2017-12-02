@@ -60,7 +60,6 @@ public class Indexer {
                 documentBlock = new DocumentBlock(id);
             }
             documentBlock.increaseFrequency();
-            documentBlock.addPosition(i);
             textHashMap.put(currentWord, documentBlock);
         }
         return textHashMap;
