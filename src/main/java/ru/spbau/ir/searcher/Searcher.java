@@ -69,11 +69,11 @@ public class Searcher {
         return searchByPlot(annotations);
     }
 
-    public class BM25Ranker implements Comparable<BM25Ranker> {
+    public static class BM25Ranker implements Comparable<BM25Ranker> {
         int idDocument;
         double rank;
 
-        BM25Ranker(int id, double rank) {
+        public BM25Ranker(int id, double rank) {
             idDocument = id;
             this.rank = rank;
         }

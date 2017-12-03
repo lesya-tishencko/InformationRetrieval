@@ -1,7 +1,6 @@
 package ru.spbau.ir.searcher;
 
 import ru.spbau.ir.database.DBHandler;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.PriorityQueue;
@@ -13,7 +12,7 @@ public class RankerByScore {
         this.dbHandler = dbHandler;
     }
 
-    public List<Integer> rankByScore(PriorityQueue<Searcher.BM25Ranker> docs) {
+    public PriorityQueue<Searcher.BM25Ranker> rankByScore(PriorityQueue<Searcher.BM25Ranker> docs) {
         class IdScore implements Comparable {
             int id;
             double score;
@@ -42,9 +41,10 @@ public class RankerByScore {
             }
             scoreQueue.add(new IdScore(doc.idDocument, averageScore));
         }
-        List<Integer> resultIds = new ArrayList<>();
+        PriorityQueue<Searcher.BM25Ranker> resultIds = new PriorityQueue<>();
         while (!scoreQueue.isEmpty()) {
-            resultIds.add(scoreQueue.poll().id);
+            IdScore elem = scoreQueue.poll();
+            resultIds.add(new Searcher.BM25Ranker(elem.id, elem.score));
         }
         return resultIds;
     }

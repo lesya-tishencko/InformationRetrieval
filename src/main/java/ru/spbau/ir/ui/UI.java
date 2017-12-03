@@ -4,12 +4,15 @@ import ru.spbau.ir.database.DBHandler;
 import ru.spbau.ir.searcher.RankerByScore;
 import ru.spbau.ir.searcher.Searcher;
 import ru.spbau.ir.utils.Book;
+import ru.spbau.ir.utils.Preprocessor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.PriorityQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UI {
     private static int windowHeight;
@@ -48,10 +51,28 @@ public class UI {
                 searchButtonY,
                 searchButtonWidth,
                 searchButtonHeight);
-        jbutton.addActionListener(actionEvent ->
-                showRankedBooks(dbHandler, screen, jframe, searchButtonHeight, searchButtonWidth, query));
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setBounds(horMargin,
+                verMargin + 2 * standardElementHeight + 2,
+                standardElementHeight,
+                standardElementHeight);
+        JLabel checkBoxQuestion = new JLabel("Учитывать отзывы при ранжировании");
+        checkBoxQuestion.setBounds(horMargin + standardElementHeight,
+                verMargin + 2 * standardElementHeight - 4,
+                windowWidth - 2 * horMargin - searchButtonWidth - 2,
+                searchButtonHeight
+        );
+        jframe.add(checkBox);
+        jframe.add(checkBoxQuestion);
+        jbutton.addActionListener(actionEvent -> {
+            jframe.getContentPane().removeAll();
+            jframe.add(query);
+            jframe.add(jbutton);
+            jframe.add(checkBox);
+            jframe.add(checkBoxQuestion);
+            showRankedBooks(dbHandler, screen, jframe, checkBox, searchButtonHeight, searchButtonWidth, query);
+        });
         jframe.add(jbutton);
-
         jframe.setSize(windowWidth,windowHeight);
         jframe.setBounds((screen.width - windowWidth) / 2,
                 (screen.height - windowHeight) / 2,
@@ -64,91 +85,155 @@ public class UI {
     private static void showRankedBooks(DBHandler dbHandler,
                                         Dimension screen,
                                         JFrame jframe,
+                                        JCheckBox checkBox,
                                         int searchButtonHeight,
                                         int searchButtonWidth,
                                         JTextArea query) {
         String queryText = query.getText();
         Searcher searcher = new Searcher();
         PriorityQueue<Searcher.BM25Ranker> list = searcher.searchByPlot(queryText);
+
+        if (checkBox.isSelected()) {
+            RankerByScore ranker = new RankerByScore(dbHandler);
+            list = ranker.rankByScore(list);
+            JLabel scoreLabel = new JLabel("Оценка");
+            scoreLabel.setBounds(windowWidth - searchButtonWidth - horMargin,
+                    verMargin + 2 * standardElementHeight - 4,
+                    searchButtonWidth,
+                    searchButtonHeight);
+            jframe.add(scoreLabel);
+        }
+        JPanel rankedBooksPanel = new JPanel();
         int bookNo = 0;
         while (!list.isEmpty()) {
             Searcher.BM25Ranker bookId = list.poll();
             Book book = dbHandler.getBook(bookId.getDocumentId());
             JButton bookButton = new JButton(book.getAuthor() + " " + " \"" +
-                    book.getName() + "\" (" + book.getSite() + ")");
+                    book.getName() + "\"");
             bookButton.addActionListener(actionEvent1 -> {
-                showBookInfo(dbHandler, screen, searcher, bookId, book);
+                showBookInfo(dbHandler, screen, searcher, book, queryText);
             });
-            jframe.setLayout(null);
-            jframe.add(bookButton);
+            rankedBooksPanel.add(bookButton);
             bookButton.setBounds(
-                    horMargin,
-                    verMargin + searchButtonHeight * (2 + bookNo),
+                    0,
+                    standardElementHeight * bookNo + bookNo,
                     windowWidth - 2 * horMargin - searchButtonWidth - 2,
-                    searchButtonHeight
+                    standardElementHeight
             );
-            bookButton.setSize(windowWidth - 2 * horMargin - searchButtonWidth - 2,
-                    searchButtonHeight);
-            JProgressBar pbar = new JProgressBar();
-            pbar.setMinimum(0);
-            pbar.setMaximum(100);
-            pbar.setBounds(windowWidth - searchButtonWidth - horMargin,
-                    verMargin + searchButtonHeight * (2 + bookNo),
-                    searchButtonWidth,
-                    searchButtonHeight);
-            OptionalDouble averageScoreOpt = dbHandler
-                    .getBooksReviewsSentimScores(bookId
-                            .getDocumentId())
-                    .stream()
-                    .mapToDouble(a -> a)
-                    .average();
-            if (averageScoreOpt.isPresent()) {
-                pbar.setValue((int)(averageScoreOpt.getAsDouble() * 100));
-            }
+            if (checkBox.isSelected()) {
+                JProgressBar pbar = new JProgressBar();
+                pbar.setMinimum(0);
+                pbar.setMaximum(100);
+                pbar.setBounds(windowWidth - 2 * horMargin - searchButtonWidth,
+                        standardElementHeight * bookNo + bookNo,
+                        searchButtonWidth,
+                        standardElementHeight);
+                OptionalDouble averageScoreOpt = dbHandler
+                        .getBooksReviewsSentimScores(bookId
+                                .getDocumentId())
+                        .stream()
+                        .mapToDouble(a -> a)
+                        .average();
+                if (averageScoreOpt.isPresent()) {
+                    pbar.setValue((int) (averageScoreOpt.getAsDouble() * 100));
+                }
 
-            jframe.add(pbar);
-            jframe.invalidate();
-            jframe.repaint();
+                rankedBooksPanel.add(pbar);
+            }
             bookNo++;
         }
+        rankedBooksPanel.setBounds(
+                horMargin,
+                verMargin + 3 * standardElementHeight + 2,
+                windowWidth - 2 * horMargin,
+                bookNo * searchButtonHeight + bookNo
+        );
+        rankedBooksPanel.setLayout(new BoxLayout(rankedBooksPanel, BoxLayout.Y_AXIS));
+        jframe.getContentPane().add(rankedBooksPanel);
+        jframe.invalidate();
+        jframe.repaint();
     }
 
     private static void showBookInfo(DBHandler dbHandler,
                                      Dimension screen,
                                      Searcher searcher,
-                                     Searcher.BM25Ranker bookId,
-                                     Book book) {
+                                     Book book,
+                                     String queryText) {
         JFrame bookFrame = new JFrame("Информация о книге");
+        bookFrame.setLayout(null);
         JLabel author = new JLabel();
         author.setText(book.getAuthor());
         author.setBounds(horMargin, verMargin, windowWidth - 2 * horMargin, standardElementHeight);
         JLabel name = new JLabel();
         name.setText("\"" + book.getName() + "\"");
-        name.setBounds(horMargin, verMargin + standardElementHeight + 1, windowWidth - 2 * horMargin, standardElementHeight);
-        JLabel description = new JLabel("<html>" + book.getDescription() + "</html>");
-        description.setBounds(horMargin,
-                verMargin + standardElementHeight * 2 + 1,
+        name.setBounds(horMargin,
+                verMargin + standardElementHeight + 1,
                 windowWidth - 2 * horMargin,
-                standardElementHeight * 5);
+                standardElementHeight);
+        JLabel site = new JLabel("Описание согласно сайту " + book.getSite() + ":");
+        site.setBounds(horMargin,
+                verMargin + 2 * standardElementHeight + 2,
+                windowWidth - 2 * horMargin,
+                standardElementHeight);
+        bookFrame.add(site);
+        Preprocessor prepr = new Preprocessor();
+        List<String> queryTokens = prepr.handleText(queryText);
+        String descriptionText = book.getDescription();
+        for (String word : queryTokens) {
+            Pattern p = Pattern.compile(word, Pattern.CASE_INSENSITIVE);
+            Matcher m = p.matcher(descriptionText);
+            descriptionText = m.replaceAll("<font color='red'>" + word + "</font>");
+        }
+        JLabel description = new JLabel("<html>" + descriptionText + "</html>");
+        int descHeight = (description.getPreferredSize().height * description.getPreferredSize().width)
+                / (windowWidth - 2 * horMargin) + 10;
+        description.setBounds(horMargin,
+                verMargin + standardElementHeight * 3 + 3,
+                windowWidth - 2 * horMargin,
+                descHeight);
         bookFrame.add(author);
         bookFrame.add(name);
         bookFrame.add(description);
         PriorityQueue<Searcher.BM25Ranker> docsList
-                = searcher.getSimilar(bookId.getDocumentId());
+                = searcher.getSimilar(book.getId());
         RankerByScore ranker = new RankerByScore(dbHandler);
-        List<Integer> docsIds = ranker.rankByScore(docsList);
+        PriorityQueue<Searcher.BM25Ranker> docsIds = ranker.rankByScore(docsList);
+        JLabel infoLabel = new JLabel("Похожие книги, получившие лучшие оценки читателей:");
+
+        int similarYPos = description.getBounds().y + description.getBounds().height + 10;
+        infoLabel.setBounds(horMargin,
+                similarYPos,
+                windowWidth - 2 * horMargin,
+                standardElementHeight);
+        bookFrame.add(infoLabel);
+        JPanel similarPanel = new JPanel();
         int docNo = 0;
-        for (Integer docId : docsIds) {
-            Book currBook = dbHandler.getBook(docId);
-            JLabel bookLabel = new JLabel(
-                    currBook.getAuthor() + " " + "\"" + currBook.getName() + "\"");
-            bookLabel.setBounds(horMargin,
-                    verMargin + standardElementHeight * (8 + docNo) + docNo + 1,
+        while (!docsIds.isEmpty()){
+            Book currBook = dbHandler.getBook(docsIds.poll().getDocumentId());
+            JButton bookLabel = new JButton(currBook.getAuthor() + " " + "\"" + currBook.getName() + "\"");
+            bookLabel.setBounds(0,
+                    standardElementHeight * (docNo) + docNo,
                     windowWidth - 2 * horMargin,
                     standardElementHeight);
-            bookFrame.add(bookLabel);
+            bookLabel.addActionListener(actionEvent1 -> {
+                showBookInfo(dbHandler, screen, searcher, currBook, description.getText());
+            });
+            similarPanel.add(bookLabel);
             docNo++;
         }
+        similarPanel.setLayout(new BoxLayout(similarPanel, BoxLayout.Y_AXIS));
+        similarPanel.setBounds(horMargin,
+                similarYPos + standardElementHeight + 5,
+                windowWidth - 2 * horMargin,
+                standardElementHeight * docNo + docNo);
+        JScrollPane scrollPane = new JScrollPane(similarPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBounds(horMargin,
+                similarYPos + standardElementHeight + 5,
+                windowWidth - 2 * horMargin,
+                windowHeight - similarYPos - standardElementHeight - verMargin);
+        bookFrame.add(scrollPane);
         bookFrame.setSize(windowWidth, windowHeight);
         bookFrame.setBounds((screen.width - windowWidth) / 2,
                 (screen.height - windowHeight) / 2,

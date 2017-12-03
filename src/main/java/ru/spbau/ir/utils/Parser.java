@@ -32,7 +32,7 @@ public class Parser {
 
     public static void main(String[] args) {
         String path = System.getProperty("user.dir");
-        Path pageStoragePath = Paths.get(path + "/out/production/resources/pageStorage");
+        Path pageStoragePath = Paths.get(path + "/src/main/resources/pageStorage");
         Parser parser = new Parser(pageStoragePath);
         DBHandler dbHandler = new DBHandler();
         dbHandler.createDatabase();
