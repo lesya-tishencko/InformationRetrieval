@@ -21,6 +21,7 @@ public class UI {
     private static int verMargin;
     private static int standardElementHeight;
     private static int standardElementWidth;
+    private static boolean gotFirstInfo = false;
 
     public static void createAndShowUI() {
         DBHandler dbHandler = new DBHandler();
@@ -108,6 +109,9 @@ public class UI {
         while (!list.isEmpty()) {
             Searcher.BM25Ranker bookId = list.poll();
             Book book = dbHandler.getBook(bookId.getDocumentId());
+            if (book == null) {
+                continue;
+            }
             JButton bookButton = new JButton(book.getAuthor() + " " + " \"" +
                     book.getName() + "\"");
             bookButton.addActionListener(actionEvent1 -> {
@@ -152,6 +156,7 @@ public class UI {
         jframe.getContentPane().add(rankedBooksPanel);
         jframe.invalidate();
         jframe.repaint();
+        gotFirstInfo = false;
     }
 
     private static void showBookInfo(DBHandler dbHandler,
@@ -179,10 +184,14 @@ public class UI {
         Preprocessor prepr = new Preprocessor();
         List<String> queryTokens = prepr.handleText(queryText);
         String descriptionText = book.getDescription();
-        for (String word : queryTokens) {
-            Pattern p = Pattern.compile(word, Pattern.CASE_INSENSITIVE);
-            Matcher m = p.matcher(descriptionText);
-            descriptionText = m.replaceAll("<font color='red'>" + word + "</font>");
+        if (!gotFirstInfo) {
+            for (String word : queryTokens) {
+                if (word.length() > 3) {
+                    Pattern p = Pattern.compile(word, Pattern.CASE_INSENSITIVE);
+                    Matcher m = p.matcher(descriptionText);
+                    descriptionText = m.replaceAll("<font color='red'>" + word + "</font>");
+                }
+            }
         }
         JLabel description = new JLabel("<html>" + descriptionText + "</html>");
         int descHeight = (description.getPreferredSize().height * description.getPreferredSize().width)
@@ -210,6 +219,9 @@ public class UI {
         int docNo = 0;
         while (!docsIds.isEmpty()){
             Book currBook = dbHandler.getBook(docsIds.poll().getDocumentId());
+            if (currBook == null) {
+                continue;
+            }
             JButton bookLabel = new JButton(currBook.getAuthor() + " " + "\"" + currBook.getName() + "\"");
             bookLabel.setBounds(0,
                     standardElementHeight * (docNo) + docNo,
@@ -241,6 +253,7 @@ public class UI {
                 windowHeight);
         bookFrame.setResizable(false);
         bookFrame.setVisible(true);
+        gotFirstInfo = true;
     }
 
     public static void main(String[] args) {

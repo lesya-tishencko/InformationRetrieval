@@ -35,21 +35,23 @@ public class Searcher {
             PriorityQueue<DocumentBlock> queue = indexer.getWordQueue(word);
             queue.stream().forEach(documentBlock -> pull.add(documentBlock.getId()));
             matrix.add(queue);
-            idf.add(Math.log((double)N / queue.size()));
+            double _idf = queue.isEmpty() ? 0 : Math.log((double)N / queue.size());
+            idf.add(_idf);
         }
 
         PriorityQueue<BM25Ranker> rankerPriorityQueue = new PriorityQueue<>();
         for (Integer idDocument : pull) {
             double sum = 0.0;
             for (int i = 0; i < tokens.size(); i++) {
-                double frequency = (double)getFrequency(tokens.get(i), matrix.get(i), idDocument);
-                sum += idf.get(i) * frequency * (k1 + 1) / (frequency + k1 * (1 - b + b * documentsLength.get(idDocument) / averageLength));
+                double frequency = (double) getFrequency(tokens.get(i), matrix.get(i), idDocument);
+                int length = documentsLength.get(idDocument) == null ? 0 : documentsLength.get(idDocument);
+                sum += idf.get(i) * frequency * (k1 + 1) / (frequency + k1 * (1 - b + b * length / averageLength));
             }
             rankerPriorityQueue.add(new BM25Ranker(idDocument, sum));
         }
 
         PriorityQueue<BM25Ranker> result = new PriorityQueue<>();
-        for (int i = 0; i < Math.min(100, rankerPriorityQueue.size()); i++) {
+        for (int i = 0; i < Math.min(15, rankerPriorityQueue.size()); i++) {
             result.add(rankerPriorityQueue.poll());
         }
         return result;
